@@ -16,21 +16,43 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+To replicate the database:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Make sure you have Xata account from https://xata.io/
 
-## Learn More
+Populate the values for XATA_API_KEY, XATA_BRANCH, and DATABASE_URL after creating a database to run this application.
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run replicate_db
+# or
+pnpm replicate_db
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+./src/db/schema.ts contains the schema for the database. After making changes, it requires:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx drizzle-kit push
+# or
+npx drizzle-kit generate
+npx drizzle-kit migrate
+```
 
-## Deploy on Vercel
+After this, changes made in the schema are reflected in the Xata database remotely, but requires also pulling the updated version into local code to get the updated Xata client and types for typechecking:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+xata codegen
+# or
+npm run xata_pull
+# or
+pnpm xata_pull
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To start dev database, make sure installation is up and running by running:
+
+```bash
+./start-database.sh
+```
+
+This will create a Docker container with Postgres available in port localhost:5432.
+
+

@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://xpy-10-s-workspace-2nn7le.us-east-1.xata.sh/db/research-loom-pg",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}
