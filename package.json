@@ -17,6 +17,7 @@
     "xata_pull": "xata codegen"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.5.0",
     "@xata.io/client": "^0.30.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.3",
