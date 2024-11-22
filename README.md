@@ -21,18 +21,9 @@ To replicate the database:
 Make sure you have Xata account from https://xata.io/
 
 Populate the values for XATA_API_KEY, XATA_BRANCH, and DATABASE_URL after creating a database to run this application.
-
-```bash
-npm run replicate_db
-# or
-pnpm replicate_db
-```
-
 ./src/db/schema.ts contains the schema for the database. After making changes, it requires:
 
 ```bash
-npx drizzle-kit push
-# or
 npx drizzle-kit generate
 npx drizzle-kit migrate
 ```
@@ -47,12 +38,5 @@ npm run xata_pull
 pnpm xata_pull
 ```
 
-To start dev database, make sure installation is up and running by running:
-
-```bash
-./start-database.sh
-```
-
-This will create a Docker container with Postgres available in port localhost:5432.
 
 

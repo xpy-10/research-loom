@@ -1,5 +1,5 @@
 [X] Xata database connection
 [X] Drizzle integration
-[ ] Vercel Integration
+[X] Vercel Integration
 [ ] Upload Thing Integration
-[ ] Clerk Auth integration
+[X] Clerk Auth integration

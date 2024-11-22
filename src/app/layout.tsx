@@ -38,6 +38,7 @@ export default function RootLayout({
           <SignedIn>
             <div>only signed in members can see this</div>
             <SignOutButton />
+            <UserButton />
           </SignedIn>
         </header>
         {children}
