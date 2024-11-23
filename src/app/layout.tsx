@@ -25,22 +25,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+    appearance={{
+      variables: {
+        colorPrimary: "#ffc400"
+      }
+    }}>
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <header>
-          <SignedOut>
-            <SignInButton />
-            <div>only signed out users can see this</div>
-          </SignedOut>
-          <SignedIn>
-            <div>only signed in members can see this</div>
-            <SignOutButton />
-            <UserButton />
-          </SignedIn>
-        </header>
+      <header className="flex gap-2">
+        <div className="flex flex-row">
+        <SignedIn>
+          <UserButton/>
+        </SignedIn>
+        </div>
+      </header>
         {children}
       </body>
     </html>
