@@ -21,10 +21,12 @@
     "@xata.io/client": "^0.30.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.3",
+    "json-joy": "^17.20.0",
     "next": "15.0.3",
     "pg": "^8.13.1",
     "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106"
+    "react-dom": "19.0.0-rc-66855b96-20241106",
+    "y-websocket": "^2.0.4"
   },
   "devDependencies": {
     "@types/node": "^20",
