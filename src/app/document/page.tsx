@@ -1,22 +1,31 @@
 'use client'
-import React from 'react';
-import model from '../../db/jsonjoy'
-import ReactQuillNew from '../components/ReactQuillNew'
+import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
+import {CollaborativeQuill} from 'collaborative-quill/lib/CollaborativeQuill';
+import Quill, { QuillOptions } from 'quill';
+import QuillCursors from 'quill-cursors';
 
-export default function Document(){
-    const view = React.useSyncExternalStore(
-        model.api.subscribe,
-        model.api.getSnapshot, [model] as any);
-    
+const model = ModelWithExt.create(ext.quill.new(''));
+Quill.register('modules/cursors', QuillCursors);
+
+export default function Document() {
+    const options = {
+        debug: 'info',
+        modules: {
+            cursors: true,
+            toolbar: [
+              [{ header: [1, 2, false] }],
+              ['bold', 'italic', 'underline'],
+              ['image', 'code-block']
+            ],
+            history: {
+              userOnly: true
+            }
+        },
+        theme: 'snow'
+    };
     return (
     <>
-    <div>
-        {String(model.api.node.get('format').view())}
-    </div>
-    <div>
-        {String(model.api.node.get('text').view())}
-    </div>
-    <ReactQuillNew />
+    <CollaborativeQuill api={model.s.toExt} options={options as QuillOptions}/>
     </>
     )
-}
+};

@@ -14,6 +14,8 @@ model.api.root({
     text: 'Hello!',
 });
 
+const modelType = typeof model;
+
 // console.log(model.view());
 
 const blob = model.toBinary();
@@ -35,4 +37,4 @@ model2.applyPatch(Patch.fromBinary(patch1));
 // console.log(model.view());
 // console.log(model2.view());
 
-export default model;
+export { model, modelType };
