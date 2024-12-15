@@ -18,15 +18,13 @@ client: import('ws').WebSocket,
 _request: import('node:http').IncomingMessage,
 server: import('ws').WebSocketServer,
 ) {
-const { send, broadcast, sendCRDT } = createHelpers(client, server);
+const { broadcast, sendCRDT } = createHelpers(client, server);
 
 
 // When a new client connects broadcast a connect message
-broadcast({ author: 'Server', content: 'A new client has connected.' });
-send({ author: 'Server', content: 'Welcome!' });
+// broadcast({ author: 'Server', content: 'A new client has connected.' });
+// send({ author: 'Server', content: 'Welcome!' });
 sendCRDT(model.toBinary());
-const model2 = ModelWithExt.load(model.api.flush().toBinary())
-
 
 // Relay any message back to other clients
 client.on('message', broadcast);
@@ -44,14 +42,13 @@ server: import('ws').WebSocketServer,
 const sendCRDT = (payload: Uint8Array) =>{
     client.send(payload);
 };
-const send = (payload: unknown) => client.send(JSON.stringify(payload));
+
 const broadcast = (payload: unknown) => {
-    if (payload instanceof Buffer) payload = payload.toString();
-    if (typeof payload !== 'string') payload = JSON.stringify(payload);
-    for (const other of server.clients)
-    if (other !== client) other.send(String(payload));
-};
-return { send, broadcast, sendCRDT };
+    if (payload instanceof Buffer) {
+        for (const other of server.clients) if (other !== client) other.send(payload);
+    }
+}
+return { broadcast, sendCRDT };
 }
 
 

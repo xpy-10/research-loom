@@ -1,14 +1,14 @@
 'use client'
-import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
+import {Patch} from 'json-joy/lib/json-crdt';
 import {CollaborativeQuill} from 'collaborative-quill/lib/CollaborativeQuill';
-import Quill, { QuillOptions } from 'quill';
+import Quill, { EmitterSource, QuillOptions } from 'quill';
 import QuillCursors from 'quill-cursors';
 import React, { useEffect, useState } from 'react';
 import { useWebSocket } from 'next-ws/client';
 import Delta from 'quill-delta';
 import { retrieveDocument } from '@/lib/actions';
 
-let model = retrieveDocument();
+let model = retrieveDocument().fork();
 let api = () => model.s.toExt();
 
 Quill.register('modules/cursors', QuillCursors);
@@ -16,18 +16,31 @@ Quill.register('modules/cursors', QuillCursors);
 export default function Document() {
     React.useSyncExternalStore(model.api.subscribe, () => model.tick);
     const editorRef = React.useRef<Quill | null>(null);
+    const [shouldUpdate, setShouldUpdate] = useState(false);
 
     const ws = useWebSocket();
+
+    useEffect(() => {
+        if (!shouldUpdate) return;
+        const intervalId = setInterval(() => {
+            const patch = model.api.flush()
+            ws?.send(patch.toBinary());
+            setShouldUpdate(false);
+        }, 5000);
+    
+        return () => {
+            clearInterval(intervalId);
+        };
+      }, [shouldUpdate]); 
 
     useEffect(() => {
         async function onMessage(event: MessageEvent) {
             if (event.data instanceof Blob) {
                 const res = new Response(event.data);
                 res.arrayBuffer().then(arrayBuffer => {
-                    let blob = new Uint8Array(arrayBuffer);
-                    const retrievedModel = ModelWithExt.load(blob);
-                    if (!editorRef.current) return;
-                    editorRef.current.updateContents(new Delta(retrievedModel.api.view() as []));
+                    const blob = new Uint8Array(arrayBuffer);
+                    model.applyPatch(Patch.fromBinary(blob));
+                    console.warn(model);
                 }).catch(err => {
                     console.warn('Error processing blob: ', err);
                 })
@@ -36,6 +49,12 @@ export default function Document() {
         ws?.addEventListener('message', onMessage);
         return () => ws?.removeEventListener('message', onMessage);
     }, [ws]);
+
+    const handleTextChange = (delta: Delta, oldDelta: Delta, source: EmitterSource) => {
+        if (source === 'user') {
+            setShouldUpdate(true);
+            }
+    }
 
     const options = {
         debug: 'info',
@@ -54,7 +73,7 @@ export default function Document() {
     };
     return (
     <div className='mt-10'>
-    <CollaborativeQuill api={api} onEditor={(editor) => {editorRef.current = editor}} options={options as QuillOptions}/>
+    <CollaborativeQuill api={api} onTextChange={handleTextChange} onEditor={(editor) => {editorRef.current = editor}} options={options as QuillOptions}/>
     </div>
     )
 };
