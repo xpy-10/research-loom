@@ -36,11 +36,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
       <header className="flex gap-2">
+        <h1 className="pr-10">Research Loom</h1>
+        <nav>
         <div className="flex flex-row">
         <SignedIn>
           <UserButton/>
         </SignedIn>
         </div>
+        </nav>
       </header>
         {children}
       </body>

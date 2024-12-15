@@ -2,6 +2,9 @@
 
 import { useWebSocket } from 'next-ws/client';
 import { useCallback, useEffect, useState } from 'react';
+import {Model} from 'json-joy/lib/json-crdt';
+import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
+
 
 export default function Page() {
   const ws = useWebSocket();
@@ -32,10 +35,22 @@ export default function Page() {
 
   useEffect(() => {
     async function onMessage(event: MessageEvent) {
-      const payload =
-        typeof event.data === 'string' ? event.data : await event.data.text();
-      const message = JSON.parse(payload) as Message;
-      setMessages((p) => [...p, message]);
+    //   const payload =
+    //     typeof event.data === 'string' ? event.data : await event.data.text();
+    //   const message = JSON.parse(payload) as Message;
+    //   setMessages((p) => [...p, message]);
+        if (event.data instanceof Blob) {
+            const reader = new Response(event.data);
+            reader.arrayBuffer().then(arrayBuffer => {
+                let blob = new Uint8Array(arrayBuffer);
+                console.log(blob)
+                const model = ModelWithExt.load(blob);
+                console.log(model.api.view())
+            }).catch(err => {
+                console.log('Error processing blob: ', err);
+            });
+        };
+
     }
 
     ws?.addEventListener('message', onMessage);
