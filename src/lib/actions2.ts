@@ -1,5 +1,3 @@
-'use server'
-
 import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
 import {s} from 'json-joy/lib/json-crdt-patch'
 
@@ -11,6 +9,6 @@ const schema = s.obj({
 
 const model = ModelWithExt.create(schema);
 
-export async function retrieveDocument() {
-    return model.toBinary();
+export function retrieveDocument() {
+    return model
 }
