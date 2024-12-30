@@ -3,7 +3,7 @@ import {s} from 'json-joy/lib/json-crdt-patch'
 
 const schema = s.obj({
     document: s.obj({
-        text: ext.quill.new('')
+        text: ext.quill.new('abc')
     })
 })
 

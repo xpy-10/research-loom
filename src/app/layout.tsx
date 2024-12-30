@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { ClerkProvider, SignInButton, SignOutButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { ClerkProvider, SignIn, SignInButton, SignOutButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Separator } from "@radix-ui/react-separator";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,24 +32,43 @@ export default function RootLayout({
     <ClerkProvider
     appearance={{
       variables: {
-        colorPrimary: "#ffc400"
+        colorPrimary: "#faebd7",
+        colorBackground: "#ffffff",
+        colorTextOnPrimaryBackground: "#000000"
       }
     }}>
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-      <header className="flex gap-2">
-        <h1 className="pr-10">Research Loom</h1>
-        <nav>
-        <div className="flex flex-row">
+      <body>
         <SignedIn>
-          <UserButton/>
+          <SidebarProvider>
+           <AppSidebar/>
+           <SidebarInset>
+           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">
+                    Building Your Application
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </header>
+            {children}
+           </SidebarInset>
+          </SidebarProvider>
         </SignedIn>
-        </div>
-        </nav>
-      </header>
-        {children}
+        <SignedOut>
+          <SignIn />
+        </SignedOut>
       </body>
     </html>
     </ClerkProvider>

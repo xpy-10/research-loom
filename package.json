@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -18,7 +18,13 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.5.0",
+    "@radix-ui/react-avatar": "^1.1.2",
+    "@radix-ui/react-collapsible": "^1.1.2",
+    "@radix-ui/react-dialog": "^1.1.4",
+    "@radix-ui/react-dropdown-menu": "^2.1.4",
+    "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-tooltip": "^1.1.6",
     "@syncedstore/core": "^0.6.0",
     "@syncedstore/react": "^0.6.0",
     "@types/socket.io-client": "^3.0.0",

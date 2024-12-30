@@ -38,5 +38,14 @@ npm run xata_pull
 pnpm xata_pull
 ```
 
+Run before installing next-ws package
+```bash
+npx next-ws-cli@latest patch
+```
+then 
+```bash
+npm install next-ws ws
+```
+
 
 

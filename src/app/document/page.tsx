@@ -7,21 +7,10 @@ import React, { useEffect, useState } from 'react';
 import { useWebSocket } from 'next-ws/client';
 import Delta from 'quill-delta';
 import { retrieveDocument } from '@/lib/actions2';
-import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
-import {s} from 'json-joy/lib/json-crdt-patch'
 
-
-  const schema = s.obj({
-    document: s.obj({
-        text: ext.quill.new('')
-    })
-})
 
 let model = retrieveDocument().fork();
-// let api = () => model.s.nested.obj.text.toExt();
-let model2 = ModelWithExt.load(model.toBinary(), undefined, schema);
-let api2 = () => model2.s.document.text.toExt();
-console.warn(api2)
+let api = () => model.s.document.text.toExt();
 
 Quill.register('modules/cursors', QuillCursors);
 
@@ -32,13 +21,15 @@ export default function Document() {
 
     const ws = useWebSocket();
 
+    console.warn(ws);
+
     useEffect(() => {
         if (!shouldUpdate) return;
         const intervalId = setInterval(() => {
             const patch = model.api.flush()
             ws?.send(patch.toBinary());
             setShouldUpdate(false);
-        }, 5000);
+        }, 1000);
     
         return () => {
             clearInterval(intervalId);
@@ -66,6 +57,8 @@ export default function Document() {
         if (source === 'user') {
             setShouldUpdate(true);
             }
+
+        console.warn('crdt mentioned')
     }
 
     const options = {
@@ -85,7 +78,7 @@ export default function Document() {
     };
     return (
     <div className='mt-10'>
-    <CollaborativeQuill api={api2} onTextChange={handleTextChange} onEditor={(editor) => {editorRef.current = editor}} options={options as QuillOptions}/>
+    <CollaborativeQuill api={api} onTextChange={handleTextChange} onEditor={(editor) => {editorRef.current = editor}} options={options as QuillOptions}/>
     </div>
     )
 };
