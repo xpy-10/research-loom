@@ -1,3 +1,5 @@
+import 'server-only'
+
 export function GET() {
     const headers = new Headers();
     headers.set('Connection', 'Upgrade');
@@ -10,13 +12,14 @@ client: import('ws').WebSocket,
 _request: import('node:http').IncomingMessage,
 server: import('ws').WebSocketServer,
 ) {
-const { broadcast } = createHelpers(client, server);
+const { connectionRoutines, broadcast } = createHelpers(client, server);
 
 
 // When a new client connects broadcast a connect message
 // broadcast({ author: 'Server', content: 'A new client has connected.' });
 // send({ author: 'Server', content: 'Welcome!' });
 client.on('open', () => console.log('websocket server started'));
+client.on('connection', connectionRoutines);
 
 // Relay any message back to other clients
 client.on('message', broadcast);
@@ -34,10 +37,28 @@ server: import('ws').WebSocketServer,
 
 const broadcast = (payload: unknown) => {
     if (payload instanceof Buffer) {
-        for (const other of server.clients) if (other !== client) other.send(payload);
+        try {
+            const jsonMessage = JSON.parse(payload.toString('utf-8'));
+            if (jsonMessage['type'] && jsonMessage['type'] == 'quill_update') {
+                for (const other of server.clients) if (other !== client) other.send(payload);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
 }
-return { broadcast };
+
+const connectionRoutines = () => {
+    const welcomeMessage = {
+        type: 'welcome',
+        client: client
+    }
+    const jsonMessage = JSON.stringify(welcomeMessage);
+    client.send(jsonMessage);
+    // for (const other of server.clients) if (other !== client) other.send(jsonMessage);
+}
+return { connectionRoutines, broadcast };
 }
 
 

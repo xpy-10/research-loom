@@ -9,6 +9,9 @@ import {s} from 'json-joy/lib/json-crdt-patch'
 import { useWebSocket } from 'next-ws/client';
 import { Patch } from 'json-joy/lib/json-crdt-patch';
 import Delta from 'quill-delta';
+import QuillCursors from 'quill-cursors';
+import { useUser } from '@clerk/nextjs';
+
 
 const schema = s.obj({
     document: s.obj({
@@ -21,9 +24,45 @@ let api = () => model.s.document.text.toExt()
 
 export default function QuillWriter() {
 
+    const theme = 'snow';
+    const modules = {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ align: [] }],
+      
+          [{ list: 'ordered'}, { list: 'bullet' }],
+          [{ indent: '-1'}, { indent: '+1' }],
+      
+          [{ size: ['small', false, 'large', 'huge'] }],
+          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+          ['link', 'image', 'video'],
+          [{ color: [] }, { background: [] }],
+        ],
+        clipboard: {
+          matchVisual: false,
+        },
+        cursors: { transformOnTextChange: true}
+      };
+    const placeholder = 'start your document';
+    const formats = [
+        'bold', 'italic', 'underline', 'strike',
+        'align', 'list', 'indent',
+        'size', 'header',
+        'link', 'image', 'video',
+        'color', 'background',
+      ]
+
     const [shouldUpdate, setShouldUpdate] = useState(false);
     const [remoteUpdate, setRemoteUpdate] = useState<Delta|undefined>(undefined);
-    const { quill, quillRef } = useQuill();
+    const { quill, quillRef, Quill } = useQuill({ theme, modules, formats, placeholder});
+    const { isLoaded, isSignedIn, user} = useUser();
+
+    if (Quill && !quill) {
+        Quill.register('modules/cursors', QuillCursors);
+    }
+    if ( isLoaded ) {
+        // console.log(user);
+    }
 
     const ws = useWebSocket();
 
@@ -36,6 +75,12 @@ export default function QuillWriter() {
         
     }, [])
 
+    useEffect(() => {
+        if (quill) {
+            const localCursor = quill.getModule('cursors') 
+            console.log(localCursor);
+        }
+    }, [])
 
     useEffect(() => {
         let unbind: ()=> void;
@@ -46,6 +91,10 @@ export default function QuillWriter() {
                 if (source === 'user') {
                     setShouldUpdate(true);
                 }
+            quill.on('selection-change', (range, oldRange, source) => {
+                // console.log(range, oldRange, source);
+            })
+
         });
         }
         return () => {
@@ -54,17 +103,14 @@ export default function QuillWriter() {
                 console.log('quill unbound');
             }
         }
-
     }, [quill])
-
-    // React.useSyncExternalStore(model.s.document.text.toExt().api.subscribe, () => model.tick);
-
 
     useEffect(() => {
         if (!shouldUpdate) return;
         const intervalId = setInterval(() => {
             const patch = model.api.flush()
-            ws?.send(patch.toBinary());
+            const message = { type: 'quill_update', payload: { quill_update: patch.toBinary()}}
+            ws?.send(JSON.stringify(message));
             setShouldUpdate(false);
         }, 1000);
     
@@ -74,27 +120,38 @@ export default function QuillWriter() {
     }, [shouldUpdate]); 
 
     useEffect(() => {
-        async function onMessage(event: MessageEvent) {
-            if (event.data instanceof Blob) {
-                const res = new Response(event.data);
-                res.arrayBuffer().then(arrayBuffer => {
-                    const blob = new Uint8Array(arrayBuffer);
-                    model.applyPatch(Patch.fromBinary(blob));
-                    const updatedText = new Delta(api().view());
-                    setRemoteUpdate(updatedText);
-                    console.log(updatedText);
-                }).catch(err => {
-                    console.warn('Error processing blob: ', err);
-                })
+        if (ws) {
+            async function onMessage(event: MessageEvent) {
+                if (event.data instanceof Blob) {
+                    const res = new Response(event.data);
+                    res.text().then((text) => {
+                        try {
+                            const json = JSON.parse(text);
+                            if (json['type'] && json['type'] === 'quill_update') {
+                                const payload = json['payload']['quill_update'];
+                                const blob = new Uint8Array(Object.keys(payload).map(key => payload[key]))
+                                model.applyPatch(Patch.fromBinary(blob));
+                                // console.log(model.view().document);
+                                const updatedText = new Delta(api().view());
+                                setRemoteUpdate(updatedText);
+                            }
+                            if (json['tyoe'] && json['type'] === 'welcome') {
+                                console.log(json['client'])
+                            }
+                        }
+                        catch (error) {
+                            console.warn('Error processing blob: ', error);
+                        }
+                    } )
+                }
             }
+            ws?.addEventListener('message', onMessage);
+            return () => ws?.removeEventListener('message', onMessage);
         }
-        ws?.addEventListener('message', onMessage);
-        return () => ws?.removeEventListener('message', onMessage);
     }, [ws]);
 
     useEffect(() => {
         if (remoteUpdate !== undefined) {
-            console.log(remoteUpdate);
             if (quill) {
                 const editorDelta = quill.getContents();
                 const diff = editorDelta.diff(remoteUpdate);
