@@ -9,7 +9,7 @@ import {s} from 'json-joy/lib/json-crdt-patch'
 import { useWebSocket } from 'next-ws/client';
 import { Patch } from 'json-joy/lib/json-crdt-patch';
 import Delta from 'quill-delta';
-import QuillCursors from 'quill-cursors';
+// import QuillCursors from 'quill-cursors';
 import { useUser } from '@clerk/nextjs';
 
 
@@ -41,7 +41,7 @@ export default function QuillWriter() {
         clipboard: {
           matchVisual: false,
         },
-        cursors: { transformOnTextChange: true}
+        // cursors: { transformOnTextChange: true}
       };
     const placeholder = 'start your document';
     const formats = [
@@ -56,15 +56,13 @@ export default function QuillWriter() {
     const [remoteUpdate, setRemoteUpdate] = useState<Delta|undefined>(undefined);
     const { quill, quillRef, Quill } = useQuill({ theme, modules, formats, placeholder});
     const { isLoaded, isSignedIn, user} = useUser();
+    const ws = useWebSocket();
+
 
     if (Quill && !quill) {
-        Quill.register('modules/cursors', QuillCursors);
-    }
-    if ( isLoaded ) {
-        // console.log(user);
+        // Quill.register('modules/cursors', QuillCursors);
     }
 
-    const ws = useWebSocket();
 
     useEffect(() => {
         const getDocument = async () => {
@@ -76,11 +74,29 @@ export default function QuillWriter() {
     }, [])
 
     useEffect(() => {
-        if (quill) {
-            const localCursor = quill.getModule('cursors') 
-            console.log(localCursor);
+        if (user && ws && quill) {
+            const awarenessObject = {
+                type: 'awareness',
+                payload: {
+                    userName: user.fullName,
+                    userId: user.id,
+                    userImageUrl: user.imageUrl,
+                    cursor: 'undefined'
+                }
+            }
+            console.log(quill);
+            const jsonMessage = JSON.stringify(awarenessObject)
+            ws?.send(jsonMessage)
         }
-    }, [])
+
+    }, [ws, user])
+
+    // useEffect(() => {
+    //     if (quill) {
+    //         const localCursor = quill.getModule('cursors') 
+    //         console.log(localCursor);
+    //     }
+    // }, [])
 
     useEffect(() => {
         let unbind: ()=> void;
@@ -131,12 +147,11 @@ export default function QuillWriter() {
                                 const payload = json['payload']['quill_update'];
                                 const blob = new Uint8Array(Object.keys(payload).map(key => payload[key]))
                                 model.applyPatch(Patch.fromBinary(blob));
-                                // console.log(model.view().document);
                                 const updatedText = new Delta(api().view());
                                 setRemoteUpdate(updatedText);
                             }
-                            if (json['tyoe'] && json['type'] === 'welcome') {
-                                console.log(json['client'])
+                            if (json['type'] && json['type'] === 'awareness') {
+                                console.log(json)
                             }
                         }
                         catch (error) {

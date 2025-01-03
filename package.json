@@ -50,7 +50,8 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "ws": "^8.18.0",
-    "yjs": "^13.6.20"
+    "yjs": "^13.6.20",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^20",

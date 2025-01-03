@@ -1,4 +1,5 @@
-import 'server-only'
+import 'server-only';
+import { z } from "zod";
 
 export function GET() {
     const headers = new Headers();
@@ -8,57 +9,60 @@ export function GET() {
   }
 
 export function SOCKET(
-client: import('ws').WebSocket,
-_request: import('node:http').IncomingMessage,
-server: import('ws').WebSocketServer,
+    client: import('ws').WebSocket,
+    _request: import('node:http').IncomingMessage,
+    server: import('ws').WebSocketServer,
 ) {
-const { connectionRoutines, broadcast } = createHelpers(client, server);
 
+    const { broadcast } = createHelpers(client, server);
 
-// When a new client connects broadcast a connect message
-// broadcast({ author: 'Server', content: 'A new client has connected.' });
-// send({ author: 'Server', content: 'Welcome!' });
-client.on('open', () => console.log('websocket server started'));
-client.on('connection', connectionRoutines);
+    client.on('open', () => console.log('websocket server started'));
 
-// Relay any message back to other clients
-client.on('message', broadcast);
+    // Relay any message back to other clients
+    client.on('message', broadcast);
 
-// When this client disconnects broadcast a disconnect message
-client.on('close', () => {
-    broadcast({ author: 'Server', content: 'A client has disconnected.' });
-});
+    // When this client disconnects broadcast a disconnect message
+    client.on('close', () => {
+        console.log('a client disconnected')
+        broadcast({ author: 'Server', content: 'A client has disconnected.' });
+    });
 }
 
-function createHelpers(
-client: import('ws').WebSocket,
-server: import('ws').WebSocketServer,
-) {
+function createHelpers( client: import('ws').WebSocket, server: import('ws').WebSocketServer,) {
 
-const broadcast = (payload: unknown) => {
-    if (payload instanceof Buffer) {
-        try {
-            const jsonMessage = JSON.parse(payload.toString('utf-8'));
-            if (jsonMessage['type'] && jsonMessage['type'] == 'quill_update') {
-                for (const other of server.clients) if (other !== client) other.send(payload);
+    const broadcast = (payload: unknown) => {
+        if (payload instanceof Buffer) {
+            try {
+                const jsonMessage = JSON.parse(payload.toString('utf-8'));
+                if (jsonMessage['type'] && jsonMessage['type'] == 'quill_update') {
+                    for (const other of server.clients) if (other !== client) other.send(payload);
+                }
+                if (jsonMessage['type'] && jsonMessage['type'] == 'awareness') {
+                    // for (const other of server.clients) if (other !== client) other.send(payload);
+                    client.send(payload);
+                    createUserMap(jsonMessage['payload']);
+                }
+            }
+            catch (error) {
+                console.log(error);
             }
         }
-        catch (error) {
-            console.log(error);
-        }
     }
+    return { broadcast };
 }
 
-const connectionRoutines = () => {
-    const welcomeMessage = {
-        type: 'welcome',
-        client: client
-    }
-    const jsonMessage = JSON.stringify(welcomeMessage);
-    client.send(jsonMessage);
-    // for (const other of server.clients) if (other !== client) other.send(jsonMessage);
-}
-return { connectionRoutines, broadcast };
+const awarenessMap = new Map();
+
+const createUserMap = (userAwareness: {}) => {
+    const awarenessSchema = z.object({
+        userName: z.string(),
+        userId: z.string(),
+        userImageUrl: z.string().url(),
+        cursor: z.literal('undefined').or(z.object({}))
+    })
+    const awarenessObject = awarenessSchema.parse(userAwareness)
+    awarenessMap.set(awarenessObject.userId, awarenessObject);
+    console.log(awarenessMap);
 }
 
 
