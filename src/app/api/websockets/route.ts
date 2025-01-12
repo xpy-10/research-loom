@@ -38,9 +38,12 @@ function createHelpers( client: import('ws').WebSocket, server: import('ws').Web
                     for (const other of server.clients) if (other !== client) other.send(payload);
                 }
                 if (jsonMessage['type'] && jsonMessage['type'] == 'awareness') {
-                    // for (const other of server.clients) if (other !== client) other.send(payload);
-                    client.send(payload);
-                    createUserMap(jsonMessage['payload']);
+                    const userMap = createUserMap(jsonMessage['payload']);
+                    const allAwareness = { type: 'awareness', awarenessMap : JSON.stringify(Object.fromEntries(userMap))}
+                    const jsonMap = JSON.stringify(allAwareness);
+                    const buffer = Buffer.from(jsonMap);
+                    for (const other of server.clients) if (other !== client) other.send(buffer);
+                    client.send(buffer);
                 }
             }
             catch (error) {
@@ -55,14 +58,17 @@ const awarenessMap = new Map();
 
 const createUserMap = (userAwareness: {}) => {
     const awarenessSchema = z.object({
-        userName: z.string(),
-        userId: z.string(),
-        userImageUrl: z.string().url(),
-        cursor: z.literal('undefined').or(z.object({}))
+        userName: z.string().or(z.literal('anon')),
+        userId: z.string().or(z.literal('anon')),
+        userImageUrl: z.string().url().or(z.literal('anon')),
+        cursor: z.literal('undefined').or(z.object({
+            index: z.number(),
+            length: z.number()
+        }))
     })
     const awarenessObject = awarenessSchema.parse(userAwareness)
     awarenessMap.set(awarenessObject.userId, awarenessObject);
-    console.log(awarenessMap);
+    return awarenessMap;
 }
 
 
