@@ -16,8 +16,6 @@ import {
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -25,32 +23,11 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { UserButton } from "@clerk/nextjs"
+import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
+import { useOrganizationList } from '@clerk/nextjs'
 
-// This is sample data.
+
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Playground",
@@ -158,17 +135,47 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+  const userMembershipsParams = {
+    memberships: {
+      pageSize: 5,
+      keepPreviousData: true,
+    },
+  }
+  const { isLoaded, userMemberships } = useOrganizationList({
+    userMemberships: userMembershipsParams,
+  })
+  
+  type teamType = {
+    name: string
+  }
+  
+  let teams:teamType[] = [{name: 'Personal Workspace'}];
+  if (isLoaded) {
+    userMemberships.data.map((membership) => {
+      teams.push({name: membership.organization.name})
+    })
+  }
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <OrganizationSwitcher
+        appearance={{
+          elements: {
+            organizationSwitcher: {
+              className: 'm-10', // Apply Tailwind classes here
+            },
+            // rootBox: { //if the root box is not filling the width
+            //   className: 'w-full box-border'
+            // }
+          },
+        }} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        {/* <NavUser user={data.user} /> */}
         <UserButton/>
       </SidebarFooter>
       <SidebarRail />

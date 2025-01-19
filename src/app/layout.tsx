@@ -67,7 +67,9 @@ export default function RootLayout({
           </SidebarProvider>
         </SignedIn>
         <SignedOut>
+          <div className="h-screen flex justify-center items-center">
           <SignIn />
+          </div>
         </SignedOut>
       </body>
     </html>
