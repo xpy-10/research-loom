@@ -159,17 +159,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <OrganizationSwitcher
-        appearance={{
-          elements: {
-            organizationSwitcher: {
-              className: 'm-10', // Apply Tailwind classes here
-            },
-            // rootBox: { //if the root box is not filling the width
-            //   className: 'w-full box-border'
-            // }
-          },
-        }} />
+        <OrganizationSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
