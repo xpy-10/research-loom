@@ -8,27 +8,25 @@ import type {
 
 const tables = [
   {
-    name: "users",
+    name: "Document",
     checkConstraints: {},
-    foreignKeys: {},
-    primaryKey: ["id"],
-    uniqueConstraints: {
-      users_email_unique: { name: "users_email_unique", columns: ["email"] },
+    foreignKeys: {
+      Document_projectId_fkey: {
+        name: "Document_projectId_fkey",
+        columns: ["projectId"],
+        referencedTable: "Project",
+        referencedColumns: ["id"],
+        onDelete: "RESTRICT",
+      },
     },
+    primaryKey: ["id"],
+    uniqueConstraints: {},
     columns: [
       {
-        name: "age",
-        type: "int",
+        name: "contents",
+        type: "json",
         notNull: true,
         unique: false,
-        defaultValue: null,
-        comment: "",
-      },
-      {
-        name: "email",
-        type: "string",
-        notNull: true,
-        unique: true,
         defaultValue: null,
         comment: "",
       },
@@ -37,15 +35,200 @@ const tables = [
         type: "int",
         notNull: true,
         unique: true,
+        defaultValue:
+          "nextval('bb_nmrsst7nel1s10udcovm845c74_2nn7le.\"Document_id_seq\"'::regclass)",
+        comment: "",
+      },
+      {
+        name: "projectId",
+        type: "link",
+        link: { table: "Project" },
+        notNull: true,
+        unique: false,
         defaultValue: null,
         comment: "",
       },
       {
+        name: "title",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+    ],
+  },
+  {
+    name: "Project",
+    checkConstraints: {},
+    foreignKeys: {},
+    primaryKey: ["id"],
+    uniqueConstraints: {},
+    columns: [
+      {
+        name: "description",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "id",
+        type: "int",
+        notNull: true,
+        unique: true,
+        defaultValue:
+          "nextval('bb_nmrsst7nel1s10udcovm845c74_2nn7le.\"Project_id_seq\"'::regclass)",
+        comment: "",
+      },
+      {
         name: "name",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+    ],
+  },
+  {
+    name: "Task",
+    checkConstraints: {},
+    foreignKeys: {
+      Task_projectId_fkey: {
+        name: "Task_projectId_fkey",
+        columns: ["projectId"],
+        referencedTable: "Project",
+        referencedColumns: ["id"],
+        onDelete: "RESTRICT",
+      },
+    },
+    primaryKey: ["id"],
+    uniqueConstraints: {},
+    columns: [
+      {
+        name: "description",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "due_date",
+        type: "timestamp(3) without time zone",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "id",
+        type: "int",
+        notNull: true,
+        unique: true,
+        defaultValue:
+          "nextval('bb_nmrsst7nel1s10udcovm845c74_2nn7le.\"Task_id_seq\"'::regclass)",
+        comment: "",
+      },
+      {
+        name: "priority",
+        type: 'bb_nmrsst7nel1s10udcovm845c74_2nn7le."PriorityTag"',
+        notNull: true,
+        unique: false,
+        defaultValue:
+          "'LOW'::bb_nmrsst7nel1s10udcovm845c74_2nn7le.\"PriorityTag\"",
+        comment: "",
+      },
+      {
+        name: "projectId",
+        type: "link",
+        link: { table: "Project" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "title",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+    ],
+  },
+  {
+    name: "_prisma_migrations",
+    checkConstraints: {},
+    foreignKeys: {},
+    primaryKey: ["id"],
+    uniqueConstraints: {},
+    columns: [
+      {
+        name: "applied_steps_count",
+        type: "int",
+        notNull: true,
+        unique: false,
+        defaultValue: "0",
+        comment: "",
+      },
+      {
+        name: "checksum",
         type: "string",
         notNull: true,
         unique: false,
         defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "finished_at",
+        type: "datetime",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "id",
+        type: "string",
+        notNull: true,
+        unique: true,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "logs",
+        type: "text",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "migration_name",
+        type: "string",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "rolled_back_at",
+        type: "datetime",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "started_at",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
         comment: "",
       },
     ],
@@ -55,11 +238,23 @@ const tables = [
 export type SchemaTables = typeof tables;
 export type InferredTypes = SchemaInference<SchemaTables>;
 
-export type Users = InferredTypes["users"];
-export type UsersRecord = Users & XataRecord;
+export type Document = InferredTypes["Document"];
+export type DocumentRecord = Document & XataRecord;
+
+export type Project = InferredTypes["Project"];
+export type ProjectRecord = Project & XataRecord;
+
+export type Task = InferredTypes["Task"];
+export type TaskRecord = Task & XataRecord;
+
+export type PrismaMigrations = InferredTypes["_prisma_migrations"];
+export type PrismaMigrationsRecord = PrismaMigrations & XataRecord;
 
 export type DatabaseSchema = {
-  users: UsersRecord;
+  Document: DocumentRecord;
+  Project: ProjectRecord;
+  Task: TaskRecord;
+  _prisma_migrations: PrismaMigrationsRecord;
 };
 
 const DatabaseClient = buildClient();

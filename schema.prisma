@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum PriorityTag {
+    LOW
+    MEDIUM
+    HIGH
+}
+
+model Project {
+    id          Int @id @default(autoincrement())
+    name        String
+    description String
+    Tasks       Task[]
+    Documents   Document[]
+}
+
+model Task {
+    id          Int  @id @default(autoincrement())
+    title       String
+    description String
+    due_date    DateTime?
+    priority    PriorityTag @default(LOW)
+    project     Project @relation(fields: [projectId], references: [id])
+    projectId   Int
+}
+
+model Document {
+    id          Int @id @default(autoincrement())
+    title       String
+    contents    Json
+    project     Project @relation(fields: [projectId], references: [id])
+    projectId   Int
+}
+
+
