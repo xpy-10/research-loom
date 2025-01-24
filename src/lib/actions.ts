@@ -2,7 +2,6 @@
 
 import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
 import {s} from 'json-joy/lib/json-crdt-patch';
-import { getXataClient } from '@/xata';
 import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
@@ -32,10 +31,17 @@ const formSchema = z.object({
 })
 
 export async function createProject(values: z.infer<typeof formSchema>, pathName: string) {
-    console.log('created a project')
     const { userId, orgId } = await auth();
     
     try {
+        const existingProject = await prisma.project.findFirst({
+            where: {
+                name: values.projectName
+            }
+        })
+        if (existingProject) {
+            return { success: false, message: 'Project with same name already exists'}
+        }
         const newProject = await prisma.project.create({
             data: {
                 name: values.projectName,
