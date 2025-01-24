@@ -15,11 +15,12 @@ enum PriorityTag {
 }
 
 model Project {
-    id          Int @id @default(autoincrement())
-    name        String
-    description String
-    Tasks       Task[]
-    Documents   Document[]
+    id              Int @id @default(autoincrement())
+    name            String
+    description     String
+    organization    String
+    Tasks           Task[]
+    Documents       Document[]
 }
 
 model Task {

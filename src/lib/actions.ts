@@ -1,10 +1,12 @@
 'use server'
 
 import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
-import {s} from 'json-joy/lib/json-crdt-patch'
+import {s} from 'json-joy/lib/json-crdt-patch';
 import { getXataClient } from '@/xata';
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
+import { auth } from '@clerk/nextjs/server';
+import { revalidatePath } from 'next/cache';
 
 const prisma = new PrismaClient();
 
@@ -29,29 +31,52 @@ const formSchema = z.object({
     })
 })
 
-export async function createProject(values: z.infer<typeof formSchema>) {
+export async function createProject(values: z.infer<typeof formSchema>, pathName: string) {
     console.log('created a project')
+    const { userId, orgId } = await auth();
     
-    async function main() {
-        await prisma.project.create({
+    try {
+        const newProject = await prisma.project.create({
             data: {
                 name: values.projectName,
-                description: values.description
+                description: values.description,
+                organization: orgId as string
             }
         })
-        console.log('made connection to prisma')
+        revalidatePath(pathName);
+        return { success: true, data: newProject};
       }
-
-    main()
-      .then(async () => {
-        await prisma.$disconnect()
-      })
-      .catch(async (e) => {
-        console.error(e)
-        await prisma.$disconnect()
-        process.exit(1)
-      })
-    return
+    catch (error) {
+        console.error(error)
+        return { success: false, message: 'Database error; failed to create project.'}
+      }
+    finally {
+        await prisma.$disconnect();
+    }
 }
+
+export async function fetchProjects() {
+    const { userId, orgId } = await auth();
+
+    try {
+        const projects = await prisma.project.findMany({
+            where: {
+                organization: orgId as string
+            }
+        })
+        return { success: true, data: projects };
+    }
+    catch(error) {
+        console.log(error);
+        return { success: false, message: 'Database error: failed to retrieve projects list'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
+
+
+
+
 
   

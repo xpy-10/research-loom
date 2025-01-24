@@ -15,6 +15,9 @@ import {
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input"
 import { createProject } from "@/lib/actions";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 
 const formSchema = z.object({
@@ -25,7 +28,21 @@ const formSchema = z.object({
         message: "Maximum of 250 characters exceeded"
     })
 })
+
+type projectType_db = {
+    success: boolean,
+    data?: {
+        description: string;
+        id: number;
+        name: string;
+        organization: string;
+    },
+    message?: string;
+} 
 export default function CreateProject() {
+    const [value, setValue] = useState<projectType_db>();
+    const { toast } = useToast();
+    const path = usePathname();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -35,12 +52,20 @@ export default function CreateProject() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        await createProject(values);
+        const returnedProject = await createProject(values, path);
+        setValue(returnedProject);
+        toast({
+            title: `${returnedProject.success?'Successful':'Unsuccessful'}`,
+            description: `${returnedProject.success?returnedProject.data && returnedProject.data.name + ' has been created':
+                returnedProject.message
+            }`
+        })
     }
 
     return (
+    <>
     <div className="w-1/2">
-        <Card>
+    <Card>
     <CardHeader>
         <CardTitle>Create a Project</CardTitle>
         <CardDescription>Fill in the form below to initiate a new project</CardDescription>
@@ -81,14 +106,14 @@ export default function CreateProject() {
             )}
             />
             <CardFooter>
-            <Button type="submit">Submit</Button>
+                <Button type="submit">Submit</Button> 
             </CardFooter>
         </form>
     </Form>
     </CardContent>
-        </Card>
-
+    </Card>
     </div>
+    </>
         
     )
 }
