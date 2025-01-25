@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
+import path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -42,15 +43,21 @@ export async function createProject(values: z.infer<typeof formSchema>, pathName
         if (existingProject) {
             return { success: false, message: 'Project with same name already exists'}
         }
-        const newProject = await prisma.project.create({
-            data: {
-                name: values.projectName,
-                description: values.description,
-                organization: orgId as string
-            }
-        })
-        revalidatePath(pathName);
-        return { success: true, data: newProject};
+        if (!userId){
+            return { success: false, message: 'Problem with authorization, please make sure you are logged in'}
+        }
+        else {
+            const newProject = await prisma.project.create({
+                data: {
+                    name: values.projectName,
+                    description: values.description,
+                    organization: orgId as string,
+                    owner: userId
+                }
+            })
+            revalidatePath(pathName);
+            return { success: true, data: newProject};
+        }
       }
     catch (error) {
         console.error(error)
@@ -78,6 +85,34 @@ export async function fetchProjects() {
     }
     finally {
         await prisma.$disconnect();
+    }
+}
+
+export async function deleteProject(projectId: number, pathName: string) {
+    const { userId, orgId } = await auth();
+
+    try {
+        const project = await prisma.project.findUnique({
+            where: {
+                id: projectId
+            }
+        })
+        if (project && project.owner === userId) {
+            const deletedProject = await prisma.project.delete({
+                where: {
+                    id: projectId
+                }
+            })
+            revalidatePath(pathName);
+            return { success: true, data: deletedProject };
+        }
+    }
+    catch(error) {
+        console.log(error);
+        return { success: false, message: `database error`}
+    }
+    finally {
+
     }
 }
 

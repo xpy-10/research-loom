@@ -19,6 +19,7 @@ model Project {
     name            String
     description     String
     organization    String
+    owner           String
     Tasks           Task[]
     Documents       Document[]
 }

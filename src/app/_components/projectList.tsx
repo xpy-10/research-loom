@@ -18,8 +18,9 @@ export default async function ProjectList() {
             <TableCaption>A list of your projects.</TableCaption>
             <TableHeader>
                 <TableRow>
-                <TableHead>Project Name</TableHead>
-                <TableHead>Project Description</TableHead>
+                <TableHead className="pl-10">Project Name</TableHead>
+                <TableHead className="text-right">Project Description</TableHead>
+                <TableHead className="flex justify-end pr-10">Edit</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
