@@ -33,7 +33,6 @@ import { deleteProject, editProject } from "@/lib/actions";
 import { usePathname } from "next/navigation";
 import { createProjectType } from "@/lib/types";
 import { Input } from "@/components/ui/input";
-import { CardFooter } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { projectFormSchema } from "@/lib/formValidation";
 import { zodResolver } from "@hookform/resolvers/zod";

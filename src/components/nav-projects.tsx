@@ -1,5 +1,3 @@
-"use client"
-
 import {
   Folder,
   Forward,
@@ -29,9 +27,13 @@ export function NavProjects({
   projects,
 }: {
   projects: {
-    name: string
-    url: string
-    icon: LucideIcon
+    name: string,
+    description: string,
+    organization: string,
+    owner: string,
+    lastUsed: Date|null
+    // url: string
+    // icon: LucideIcon
   }[]
 }) {
   const { isMobile } = useSidebar()
@@ -43,10 +45,10 @@ export function NavProjects({
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
+              {/* <a href={item.url}>
                 <item.icon />
-                <span>{item.name}</span>
-              </a>
+              </a> */}
+              <span>{item.name}</span>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

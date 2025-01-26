@@ -45,7 +45,8 @@ export async function createProject(values: z.infer<typeof projectFormSchema>, p
                     name: parsedData.projectName,
                     description: parsedData.description,
                     organization: orgId as string,
-                    owner: userId
+                    owner: userId,
+                    lastUsed: new Date()
                 }
             })
             revalidatePath(parsedPathName);
@@ -65,13 +66,16 @@ export async function createProject(values: z.infer<typeof projectFormSchema>, p
     }
 }
 
-export async function fetchProjects() {
+export async function fetchProjects(limit?: number) {
     const { userId, orgId } = await auth();
 
     try {
         const projects = await prisma.project.findMany({
             where: {
                 organization: orgId as string
+            },
+            orderBy: {
+                lastUsed: 'desc'
             }
         })
         return { success: true, data: projects };

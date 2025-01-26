@@ -11,6 +11,7 @@ import ProjectTableRow from "./projectTableRow";
 
 export default async function ProjectList() {
     const projects = await fetchProjects();
+    const projectsValidityCheck = projects && projects.success && projects.data && projects.data.length >= 1
 
     return (
         <div className="w-full">
@@ -25,7 +26,7 @@ export default async function ProjectList() {
             </TableHeader>
             <TableBody>
             {   
-                projects && projects.data?.map(value => {
+                projectsValidityCheck && projects.data.map(value => {
                     return (
                         <ProjectTableRow key={value.id} project={value} />
                     )

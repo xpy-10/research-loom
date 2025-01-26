@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import * as React from "react";
 import {
   AudioWaveform,
   BookOpen,
@@ -12,19 +12,21 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
+import { NavMain } from "@/components/nav-main";
+import { NavProjects } from "@/components/nav-projects";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
-import { useOrganizationList } from '@clerk/nextjs'
+} from "@/components/ui/sidebar";
+import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import { useOrganizationList } from '@clerk/nextjs';
+import { fetchProjects } from "@/lib/actions";
+import { Project } from '@prisma/client';
 
 
 const data = {
@@ -115,27 +117,16 @@ const data = {
       ],
     },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface additionalProps {
+  projects: Project[]
+}
 
+type SideBarPropsCustom = React.ComponentProps<typeof Sidebar> & additionalProps
+
+export function AppSidebar({ projects, ...props }: SideBarPropsCustom) {
+  
   const userMembershipsParams = {
     memberships: {
       pageSize: 5,
@@ -163,7 +154,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {
+          projects && <NavProjects projects={projects} />
+        }
       </SidebarContent>
       <SidebarFooter>
         <UserButton/>

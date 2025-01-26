@@ -20,6 +20,7 @@ model Project {
     description     String
     organization    String
     owner           String
+    lastUsed        DateTime?
     Tasks           Task[]
     Documents       Document[]
 }
