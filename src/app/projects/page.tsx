@@ -1,5 +1,5 @@
-import CreateProject from "../_components/createProject";
-import ProjectList from "../_components/projectList";
+import CreateProject from "../_components/projectComponents/createProject";
+import ProjectList from "../_components/projectComponents/projectList";
 
 export default function Projects() {
     return (

@@ -2,6 +2,7 @@ import {
   Folder,
   Forward,
   MoreHorizontal,
+  Pencil,
   Trash2,
   type LucideIcon,
 } from "lucide-react"
@@ -22,61 +23,41 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { Project } from "@prisma/client"
+import ProjectsDialogs from "@/app/_components/projectComponents/projectsDialogs"
+import ProjectsDropDownSidebar from "@/app/_components/projectComponents/projectsDropDownSidebar"
 
 export function NavProjects({
   projects,
 }: {
-  projects: {
-    name: string,
-    description: string,
-    organization: string,
-    owner: string,
-    lastUsed: Date|null
-    // url: string
-    // icon: LucideIcon
-  }[]
+  projects: Project[]
 }) {
   const { isMobile } = useSidebar()
+
+  const handleMenuSelection = (selectedProject: Project) => {
+    console.log(selectedProject);
+  }
+
+  const handleEditSubmit = () => {
+    console.log('edit');
+  }
+
+  const handleMenuDelete = (selectedProject: Project) => {
+    console.log('delete');
+  }
+
+
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
+        {projects.map((project) => (
+          <SidebarMenuItem key={project.name}>
             <SidebarMenuButton asChild>
-              {/* <a href={item.url}>
-                <item.icon />
-              </a> */}
-              <span>{item.name}</span>
+              <span>{project.name}</span>
             </SidebarMenuButton>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuAction showOnHover>
-                  <MoreHorizontal />
-                  <span className="sr-only">More</span>
-                </SidebarMenuAction>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-48 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
-                align={isMobile ? "end" : "start"}
-              >
-                <DropdownMenuItem>
-                  <Folder className="text-neutral-500 dark:text-neutral-400" />
-                  <span>View Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Forward className="text-neutral-500 dark:text-neutral-400" />
-                  <span>Share Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Trash2 className="text-neutral-500 dark:text-neutral-400" />
-                  <span>Delete Project</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ProjectsDropDownSidebar project={project} />
           </SidebarMenuItem>
         ))}
         <SidebarMenuItem>
