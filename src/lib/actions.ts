@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
+import { projectFormSchema } from './formValidation';
 
 const prisma = new PrismaClient();
 
@@ -21,22 +22,15 @@ export async function retrieveDocument() {
     return model.toBinary();
 }
 
-const formSchema = z.object({
-    projectName: z.string().min(2, {
-        message: "Name of Project must be at least 2 characters."
-    }).max(50),
-    description: z.string().max(250, {
-        message: "Maximum of 250 characters exceeded"
-    })
-})
-
-export async function createProject(values: z.infer<typeof formSchema>, pathName: string) {
+export async function createProject(values: z.infer<typeof projectFormSchema>, pathName: string) {
     const { userId, orgId } = await auth();
     
     try {
+        const parsedData: z.infer<typeof projectFormSchema> = projectFormSchema.parse(values);
+        const parsedPathName: string = z.string().parse(pathName);
         const existingProject = await prisma.project.findFirst({
             where: {
-                name: values.projectName
+                name: parsedData.projectName
             }
         })
         if (existingProject) {
@@ -48,17 +42,21 @@ export async function createProject(values: z.infer<typeof formSchema>, pathName
         else {
             const newProject = await prisma.project.create({
                 data: {
-                    name: values.projectName,
-                    description: values.description,
+                    name: parsedData.projectName,
+                    description: parsedData.description,
                     organization: orgId as string,
                     owner: userId
                 }
             })
-            revalidatePath(pathName);
+            revalidatePath(parsedPathName);
             return { success: true, data: newProject};
         }
       }
     catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error)
+            return { success: false, message: 'validation error'}
+        }
         console.error(error)
         return { success: false, message: 'Database error; failed to create project.'}
       }
@@ -91,6 +89,9 @@ export async function deleteProject(projectId: number, pathName: string) {
     const { userId, orgId } = await auth();
 
     try {
+        const parsedProjectId: number = z.number().parse(projectId);
+        const parsedPathName: string = z.string().parse(pathName);
+
         const project = await prisma.project.findUnique({
             where: {
                 id: projectId
@@ -110,6 +111,10 @@ export async function deleteProject(projectId: number, pathName: string) {
         }
     }
     catch(error) {
+        if (error instanceof z.ZodError) {
+            console.log(error)
+            return { success: false, message: 'validation error'}
+        }
         console.log(error);
         return { success: false, message: `database error`}
     }
@@ -118,13 +123,15 @@ export async function deleteProject(projectId: number, pathName: string) {
     }
 }
 
-export async function editProject(projectId: number, values: z.infer<typeof formSchema>, pathName: string) {
+export async function editProject(values: z.infer<typeof projectFormSchema>, pathName: string) {
     const { userId, orgId } = await auth();
-
     try {
+        const parsedData: z.infer<typeof projectFormSchema> = projectFormSchema.parse(values)
+        const parsedPathName:string = z.string().parse(pathName);
+        
         const existingProject = await prisma.project.findFirst({
             where: {
-                id: projectId
+                id: parsedData.id
             }
         })
         if (existingProject && existingProject.owner !== userId) {
@@ -133,18 +140,22 @@ export async function editProject(projectId: number, values: z.infer<typeof form
         else if (existingProject && existingProject.owner === userId) {
             const editedProject = await prisma.project.update({
                 where: {
-                    id: projectId
+                    id: parsedData.id
                 },
                 data: {
-                    name: values.projectName,
-                    description: values.description
+                    name: parsedData.projectName,
+                    description: parsedData.description
                 }
             })
-            revalidatePath(pathName);
+            revalidatePath(parsedPathName);
             return { success: true, data: editedProject };
         }
     }
     catch(error) {
+        if (error instanceof z.ZodError) {
+            console.log(error)
+            return { success: false, message: 'validation error'}
+        }
         console.log(error);
         return { success: false, message: `database error`}
     }

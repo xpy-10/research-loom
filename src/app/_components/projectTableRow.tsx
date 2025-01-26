@@ -29,7 +29,7 @@ import {
     FormMessage,
   } from "@/components/ui/form"
 import React, { useState } from "react";
-import { deleteProject } from "@/lib/actions";
+import { deleteProject, editProject } from "@/lib/actions";
 import { usePathname } from "next/navigation";
 import { createProjectType } from "@/lib/types";
 import { Input } from "@/components/ui/input";
@@ -45,7 +45,6 @@ export default function ProjectTableRow({project}: {project: createProjectType})
     const [selection, setSelection] = useState<string|undefined>(undefined);
 
     const handleMenuSelection = (selectedProject: typeof project) => {
-        console.log(selectedProject);
         toast({
             description: `Your project ${project.name} has been selected`
         })
@@ -54,26 +53,28 @@ export default function ProjectTableRow({project}: {project: createProjectType})
     const handleMenuDelete = async (selectedProject: typeof project) => {
         setSelection('delete');
         const deletedProject = await deleteProject(selectedProject.id, pathname)
-        if (deletedProject?.success && deletedProject.data) {
-            toast({
+        deletedProject?.success && deletedProject.data && toast({
                 description: `Your project ${deletedProject.data.name} has been successfully deleted`
             })
-        }
+        deletedProject?.success === false && deletedProject.message && toast({
+                description: deletedProject.message
+            })
     }
 
-    const handleMenuEdit = (selectedProject: typeof project) => {
-        console.log('edit', selectedProject);
-    }
-
-    const handleEditSubmit = () => {
-
+    const handleEditSubmit = async (values: z.infer<typeof projectFormSchema>, pathName: string) => {
+        setSelection(undefined);
+        const editedProject = await editProject(values, pathName)
+        editedProject?.success && editedProject.data && toast({
+            description: `Successfully changed project attributes`
+        })
     }
 
     const projectForm = useForm<z.infer<typeof projectFormSchema>>({
         resolver: zodResolver(projectFormSchema),
         defaultValues: {
-            projectName: '',
-            description: ''
+            id: project.id,
+            projectName: project.name,
+            description: project.description
         }
     })
 
@@ -126,7 +127,7 @@ export default function ProjectTableRow({project}: {project: createProjectType})
             <DialogTitle>Enter new project attributes</DialogTitle>
             </DialogHeader>
             <Form {...projectForm}>
-            <form onSubmit={projectForm.handleSubmit(handleEditSubmit)} className="space-y-8">
+            <form onSubmit={projectForm.handleSubmit((values)=> handleEditSubmit(values, pathname))} className="space-y-8">
                 <FormField
                 control={projectForm.control}
                 name="projectName"
@@ -134,7 +135,7 @@ export default function ProjectTableRow({project}: {project: createProjectType})
                     <FormItem>
                     <FormLabel>Project Name</FormLabel>
                     <FormControl>
-                        <Input  {...field} />
+                        <Input  placeholder={project.name}{...field} />
                     </FormControl>
                     <FormDescription>
                         This is your project's name
@@ -150,7 +151,7 @@ export default function ProjectTableRow({project}: {project: createProjectType})
                     <FormItem>
                     <FormLabel>Project Description</FormLabel>
                     <FormControl>
-                        <Input  {...field} />
+                        <Input  placeholder={project.description}{...field} />
                     </FormControl>
                     <FormDescription>
                         Project description
