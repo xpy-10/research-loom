@@ -1,7 +1,7 @@
 'use client';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { MoreHorizontal } from "lucide-react";
+import { Folder, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -17,14 +17,29 @@ DialogContent,
 DialogDescription,
 DialogHeader,
 DialogTitle,
-DialogTrigger,
 DialogFooter
 } from "@/components/ui/dialog";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+  } from "@/components/ui/form"
 import React, { useState } from "react";
 import { deleteProject } from "@/lib/actions";
 import { usePathname } from "next/navigation";
+import { createProjectType } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { CardFooter } from "@/components/ui/card";
+import { useForm } from "react-hook-form";
+import { projectFormSchema } from "@/lib/formValidation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-export default function ProjectTableRow({project}: {project: {id:number, name:string, description:string}}) {
+export default function ProjectTableRow({project}: {project: createProjectType}) {
     const { toast } = useToast();
     const pathname = usePathname();
     const [selection, setSelection] = useState<string|undefined>(undefined);
@@ -37,7 +52,6 @@ export default function ProjectTableRow({project}: {project: {id:number, name:st
     }
 
     const handleMenuDelete = async (selectedProject: typeof project) => {
-        console.log('delete', selectedProject);
         setSelection('delete');
         const deletedProject = await deleteProject(selectedProject.id, pathname)
         if (deletedProject?.success && deletedProject.data) {
@@ -51,13 +65,24 @@ export default function ProjectTableRow({project}: {project: {id:number, name:st
         console.log('edit', selectedProject);
     }
 
+    const handleEditSubmit = () => {
+
+    }
+
+    const projectForm = useForm<z.infer<typeof projectFormSchema>>({
+        resolver: zodResolver(projectFormSchema),
+        defaultValues: {
+            projectName: '',
+            description: ''
+        }
+    })
+
     return (
         <>
         <TableRow className="hover:bg-white" key={project.id}>
         <TableCell className="font-medium pl-10">{project.name}</TableCell>
         <TableCell className="text-right">{project.description}</TableCell>
         <TableCell className="flex justify-end pr-10">
-            <Dialog>
             <DropdownMenu>
             <DropdownMenuTrigger>
                 <MoreHorizontal className="text-sidebar-foreground/90" />
@@ -65,13 +90,22 @@ export default function ProjectTableRow({project}: {project: {id:number, name:st
             <DropdownMenuContent>
                 <DropdownMenuLabel>Project {project.name}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleMenuSelection(project)}>Select</DropdownMenuItem>
-                <DialogTrigger>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                </DialogTrigger>
-                <DropdownMenuItem onClick={() => handleMenuEdit(project)}>Edit</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMenuSelection(project)}>
+                    <Folder className="text-neutral-500 dark:text-neutral-400" />
+                    <span>View Project</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelection('delete')}>
+                    <Trash2 className="text-neutral-500 dark:text-neutral-400" />
+                    <span>Delete Project</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelection('edit')}>
+                    <Pencil className="text-neutral-500 dark:text-neutral-400" />
+                    <span>Edit Project</span>
+                </DropdownMenuItem>
             </DropdownMenuContent>
             </DropdownMenu>
+
+            <Dialog open={selection==='delete'} onOpenChange={()=> setSelection(undefined)}>
             <DialogContent>
             <DialogHeader>
             <DialogTitle>Are you absolutely sure?</DialogTitle>
@@ -83,7 +117,55 @@ export default function ProjectTableRow({project}: {project: {id:number, name:st
             <DialogFooter>
             <Button onClick={() => handleMenuDelete(project)}>Confirm</Button>
             </DialogFooter>
-        </DialogContent>
+            </DialogContent>
+            </Dialog>
+
+            <Dialog open={selection==='edit'} onOpenChange={()=> setSelection(undefined)}>
+            <DialogContent>
+            <DialogHeader>
+            <DialogTitle>Enter new project attributes</DialogTitle>
+            </DialogHeader>
+            <Form {...projectForm}>
+            <form onSubmit={projectForm.handleSubmit(handleEditSubmit)} className="space-y-8">
+                <FormField
+                control={projectForm.control}
+                name="projectName"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Project Name</FormLabel>
+                    <FormControl>
+                        <Input  {...field} />
+                    </FormControl>
+                    <FormDescription>
+                        This is your project's name
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={projectForm.control}
+                name="description"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Project Description</FormLabel>
+                    <FormControl>
+                        <Input  {...field} />
+                    </FormControl>
+                    <FormDescription>
+                        Project description
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            <DialogFooter>
+            <Button variant="secondary" onClick={() => setSelection(undefined)}>Cancel</Button>
+            <Button type="submit">Submit</Button> 
+            </DialogFooter>
+            </form>
+            </Form>
+            </DialogContent>
             </Dialog>
         </TableCell>
         </TableRow>

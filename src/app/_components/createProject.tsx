@@ -1,7 +1,5 @@
 "use client"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -18,40 +16,25 @@ import { createProject } from "@/lib/actions";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { projectType_db } from "@/lib/types";
+import { projectFormSchema } from "@/lib/formValidation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
 
-
-const formSchema = z.object({
-    projectName: z.string().min(2, {
-        message: "Name of Project must be at least 2 characters."
-    }).max(50),
-    description: z.string().max(250, {
-        message: "Maximum of 250 characters exceeded"
-    })
-})
-
-type projectType_db = {
-    success: boolean,
-    data?: {
-        description: string;
-        id: number;
-        name: string;
-        organization: string;
-    },
-    message?: string;
-} 
 export default function CreateProject() {
     const [value, setValue] = useState<projectType_db>();
     const { toast } = useToast();
     const path = usePathname();
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+
+    const projectForm = useForm<z.infer<typeof projectFormSchema>>({
+        resolver: zodResolver(projectFormSchema),
         defaultValues: {
             projectName: '',
             description: ''
         }
     })
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof projectFormSchema>) {
         const returnedProject = await createProject(values, path);
         setValue(returnedProject);
         toast({
@@ -71,10 +54,10 @@ export default function CreateProject() {
         <CardDescription>Fill in the form below to initiate a new project</CardDescription>
     </CardHeader>
     <CardContent>
-    <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    <Form {...projectForm}>
+        <form onSubmit={projectForm.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
-            control={form.control}
+            control={projectForm.control}
             name="projectName"
             render={({ field }) => (
                 <FormItem>
@@ -90,7 +73,7 @@ export default function CreateProject() {
             )}
             />
             <FormField
-            control={form.control}
+            control={projectForm.control}
             name="description"
             render={({ field }) => (
                 <FormItem>

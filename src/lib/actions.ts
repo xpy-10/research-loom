@@ -6,7 +6,6 @@ import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -97,7 +96,10 @@ export async function deleteProject(projectId: number, pathName: string) {
                 id: projectId
             }
         })
-        if (project && project.owner === userId) {
+        if (project && project.owner !== userId) {
+            return { success: false, message: 'you do not have permission to delete project'}
+        }
+        else if (project && project.owner === userId) {
             const deletedProject = await prisma.project.delete({
                 where: {
                     id: projectId
@@ -112,7 +114,42 @@ export async function deleteProject(projectId: number, pathName: string) {
         return { success: false, message: `database error`}
     }
     finally {
+        await prisma.$disconnect();
+    }
+}
 
+export async function editProject(projectId: number, values: z.infer<typeof formSchema>, pathName: string) {
+    const { userId, orgId } = await auth();
+
+    try {
+        const existingProject = await prisma.project.findFirst({
+            where: {
+                id: projectId
+            }
+        })
+        if (existingProject && existingProject.owner !== userId) {
+            return { success: false, message: 'you do not have permission to edit project attributes'}
+        }
+        else if (existingProject && existingProject.owner === userId) {
+            const editedProject = await prisma.project.update({
+                where: {
+                    id: projectId
+                },
+                data: {
+                    name: values.projectName,
+                    description: values.description
+                }
+            })
+            revalidatePath(pathName);
+            return { success: true, data: editedProject };
+        }
+    }
+    catch(error) {
+        console.log(error);
+        return { success: false, message: `database error`}
+    }
+    finally {
+        await prisma.$disconnect();
     }
 }
 
