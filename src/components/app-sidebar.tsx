@@ -1,33 +1,10 @@
 "use client"
-
-import * as React from "react";
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react";
-
+import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
-} from "@/components/ui/sidebar";
+import { Sidebar ,SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
-import { useOrganizationList } from '@clerk/nextjs';
-import { fetchProjects } from "@/lib/actions";
 import { Project } from '@prisma/client';
-
 
 const data = {
   navMain: [
@@ -120,33 +97,13 @@ const data = {
 }
 
 interface additionalProps {
-  projects: Project[]
+  projects: Project[]|undefined
 }
 
 type SideBarPropsCustom = React.ComponentProps<typeof Sidebar> & additionalProps
 
 export function AppSidebar({ projects, ...props }: SideBarPropsCustom) {
-  
-  const userMembershipsParams = {
-    memberships: {
-      pageSize: 5,
-      keepPreviousData: true,
-    },
-  }
-  const { isLoaded, userMemberships } = useOrganizationList({
-    userMemberships: userMembershipsParams,
-  })
-  
-  type teamType = {
-    name: string
-  }
-  
-  let teams:teamType[] = [{name: 'Personal Workspace'}];
-  if (isLoaded) {
-    userMemberships.data.map((membership) => {
-      teams.push({name: membership.organization.name})
-    })
-  }
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -154,9 +111,7 @@ export function AppSidebar({ projects, ...props }: SideBarPropsCustom) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        {
-          projects && <NavProjects projects={projects} />
-        }
+          <NavProjects projects={projects} />
       </SidebarContent>
       <SidebarFooter>
         <UserButton/>

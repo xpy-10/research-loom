@@ -1,58 +1,23 @@
-import {
-  Folder,
-  Forward,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  type LucideIcon,
-} from "lucide-react"
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
-import { Project } from "@prisma/client"
-import ProjectsDialogs from "@/app/_components/projectComponents/projectsDialogs"
-import ProjectsDropDownSidebar from "@/app/_components/projectComponents/projectsDropDownSidebar"
+'use client'
+import { MoreHorizontal } from "lucide-react"
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { Project } from "@prisma/client";
+import ProjectsDropDownSidebar from "@/app/_components/projectComponents/projectsDropDownSidebar";
+import { useOrganization } from "@clerk/nextjs";
+import { useEffect } from "react";
 
 export function NavProjects({
   projects,
 }: {
-  projects: Project[]
+  projects: Project[]|undefined
 }) {
-  const { isMobile } = useSidebar()
-
-  const handleMenuSelection = (selectedProject: Project) => {
-    console.log(selectedProject);
-  }
-
-  const handleEditSubmit = () => {
-    console.log('edit');
-  }
-
-  const handleMenuDelete = (selectedProject: Project) => {
-    console.log('delete');
-  }
-
-
+  const { organization } = useOrganization();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((project) => (
+        { organization && projects && projects.map((project) => (
           <SidebarMenuItem key={project.name}>
             <SidebarMenuButton asChild>
               <span>{project.name}</span>

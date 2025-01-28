@@ -68,6 +68,10 @@ export async function createProject(values: z.infer<typeof projectFormSchema>, p
 
 export async function fetchProjects(limit?: number) {
     const { userId, orgId } = await auth();
+    
+    if (!userId) {
+        return { success:false, message: `Database error, ${!userId && 'no userId'} provided`}
+    }
 
     try {
         const projects = await prisma.project.findMany({
