@@ -80,7 +80,9 @@ export async function fetchProjects(limit?: number) {
             },
             orderBy: {
                 lastUsed: 'desc'
-            }
+            },
+            ...(limit !== undefined && {take: limit})
+            
         })
         return { success: true, data: projects };
     }

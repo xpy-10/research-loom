@@ -12,11 +12,13 @@ import { projectType_db } from "@/lib/types";
 import { projectFormSchema } from "@/lib/formValidation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useOrganization } from "@clerk/nextjs";
 
 export default function CreateProject() {
     const [value, setValue] = useState<projectType_db>();
     const { toast } = useToast();
     const path = usePathname();
+    const { organization } = useOrganization();
 
     const projectForm = useForm<z.infer<typeof projectFormSchema>>({
         resolver: zodResolver(projectFormSchema),
@@ -37,58 +39,59 @@ export default function CreateProject() {
         })
     }
 
-    return (
-    <>
-    <div className="w-1/2">
-    <Card>
-    <CardHeader>
-        <CardTitle>Create a Project</CardTitle>
-        <CardDescription>Fill in the form below to initiate a new project</CardDescription>
-    </CardHeader>
-    <CardContent>
-    <Form {...projectForm}>
-        <form onSubmit={projectForm.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-            control={projectForm.control}
-            name="projectName"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Project Name</FormLabel>
-                <FormControl>
-                    <Input  {...field} />
-                </FormControl>
-                <FormDescription>
-                    This is your project's name
-                </FormDescription>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-            <FormField
-            control={projectForm.control}
-            name="description"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Project Description</FormLabel>
-                <FormControl>
-                    <Input  {...field} />
-                </FormControl>
-                <FormDescription>
-                    Project description
-                </FormDescription>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-            <CardFooter>
-                <Button type="submit">Submit</Button> 
-            </CardFooter>
-        </form>
-    </Form>
-    </CardContent>
-    </Card>
-    </div>
-    </>
-        
-    )
+    const formReturn = organization? (
+        <>
+        <div className="w-1/2">
+        <Card>
+        <CardHeader>
+            <CardTitle>Create a Project</CardTitle>
+            <CardDescription>Fill in the form below to initiate a new project</CardDescription>
+        </CardHeader>
+        <CardContent>
+        <Form {...projectForm}>
+            <form onSubmit={projectForm.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField
+                control={projectForm.control}
+                name="projectName"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Project Name</FormLabel>
+                    <FormControl>
+                        <Input  {...field}/>
+                    </FormControl>
+                    <FormDescription>
+                        This is your project's name
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={projectForm.control}
+                name="description"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Project Description</FormLabel>
+                    <FormControl>
+                        <Input  {...field} />
+                    </FormControl>
+                    <FormDescription>
+                        Project description
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <CardFooter>
+                    <Button type="submit">Submit</Button> 
+                </CardFooter>
+            </form>
+        </Form>
+        </CardContent>
+        </Card>
+        </div>
+        </> 
+        ): <div>Please activate an organization to proceed</div>
+
+    return formReturn;
 }
