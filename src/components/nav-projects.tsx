@@ -1,5 +1,5 @@
 'use client'
-import { MoreHorizontal } from "lucide-react"
+import { BriefcaseBusiness, MoreHorizontal } from "lucide-react"
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Project } from "@prisma/client";
 import ProjectsDropDownSidebar from "@/app/_components/projectComponents/projectsDropDownSidebar";
@@ -19,7 +19,8 @@ export function NavProjects({
       <SidebarMenu>
         { organization && projects && projects.map((project) => (
           <SidebarMenuItem key={project.name}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton >
+              <BriefcaseBusiness />
               <span>{project.name}</span>
             </SidebarMenuButton>
             <ProjectsDropDownSidebar project={project} />

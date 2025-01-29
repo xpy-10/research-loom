@@ -2,11 +2,11 @@
 
 import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
 import {s} from 'json-joy/lib/json-crdt-patch';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { projectFormSchema } from './formValidation';
+import { projectFormSchema, taskFormSchema } from './formValidation';
 
 const prisma = new PrismaClient();
 
@@ -34,32 +34,30 @@ export async function createProject(values: z.infer<typeof projectFormSchema>, p
             }
         })
         if (existingProject) {
-            return { success: false, message: 'Project with same name already exists'}
+            return { success: false, message: 'Project with same name already exists'};
         }
         if (!userId){
-            return { success: false, message: 'Problem with authorization, please make sure you are logged in'}
+            return { success: false, message: 'Problem with authorization, please make sure you are logged in'};
         }
-        else {
-            const newProject = await prisma.project.create({
-                data: {
-                    name: parsedData.projectName,
-                    description: parsedData.description,
-                    organization: orgId as string,
-                    owner: userId,
-                    lastUsed: new Date()
-                }
-            })
-            revalidatePath(parsedPathName);
-            return { success: true, data: newProject};
-        }
+        const newProject = await prisma.project.create({
+            data: {
+                name: parsedData.projectName,
+                description: parsedData.description,
+                organization: orgId as string,
+                owner: userId,
+                lastUsed: new Date()
+            }
+        })
+        revalidatePath(parsedPathName);
+        return { success: true, data: newProject};
       }
     catch (error) {
         if (error instanceof z.ZodError) {
             console.log(error)
-            return { success: false, message: 'validation error'}
+            return { success: false, message: 'validation error'};
         }
         console.error(error)
-        return { success: false, message: 'Database error; failed to create project.'}
+        return { success: false, message: 'Database error; failed to create project.'};
       }
     finally {
         await prisma.$disconnect();
@@ -108,7 +106,7 @@ export async function deleteProject(projectId: number, pathName: string) {
             }
         })
         if (project && project.owner !== userId) {
-            return { success: false, message: 'you do not have permission to delete project'}
+            return { success: false, message: 'you do not have permission to delete project'};
         }
         else if (project && project.owner === userId) {
             const deletedProject = await prisma.project.delete({
@@ -116,17 +114,17 @@ export async function deleteProject(projectId: number, pathName: string) {
                     id: projectId
                 }
             })
-            revalidatePath(pathName);
+            revalidatePath(parsedPathName);
             return { success: true, data: deletedProject };
         }
     }
     catch(error) {
         if (error instanceof z.ZodError) {
-            console.log(error)
-            return { success: false, message: 'validation error'}
+            console.log(error);
+            return { success: false, message: 'validation error'};
         }
         console.log(error);
-        return { success: false, message: `database error`}
+        return { success: false, message: 'database error'};
     }
     finally {
         await prisma.$disconnect();
@@ -145,7 +143,7 @@ export async function editProject(values: z.infer<typeof projectFormSchema>, pat
             }
         })
         if (existingProject && existingProject.owner !== userId) {
-            return { success: false, message: 'you do not have permission to edit project attributes'}
+            return { success: false, message: 'you do not have permission to edit project attributes'};
         }
         else if (existingProject && existingProject.owner === userId) {
             const editedProject = await prisma.project.update({
@@ -163,11 +161,167 @@ export async function editProject(values: z.infer<typeof projectFormSchema>, pat
     }
     catch(error) {
         if (error instanceof z.ZodError) {
-            console.log(error)
-            return { success: false, message: 'validation error'}
+            console.log(error);
+            return { success: false, message: 'validation error'};
         }
         console.log(error);
-        return { success: false, message: `database error`}
+        return { success: false, message: 'database error'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
+
+export async function useProject(projectId: number) {
+    const { userId, orgId } = await auth();
+    try {
+        const parsedId = z.number().parse(projectId)
+        const project = await prisma.project.update({
+            where: {
+                id: parsedId
+            }, 
+            data: {
+                lastUsed: new Date()
+            }
+        })
+        return { success: true, data: project };
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error);
+            return { success: false, message: 'validation error' };
+        }
+        console.log(error);
+        return { success: false, message: 'database error' };
+    }
+}
+
+export async function fetchTasks(pathName: string) {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'}
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'}
+    }
+    try {
+        const parsedPathName: string = z.string().parse(pathName);
+        const project = await prisma.project.findFirst({
+            where: {
+                organization: orgId,
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        })
+        if (project) {
+            const tasks = await prisma.task.findMany({
+                where: {
+                    projectId: project.id
+                }
+            })
+            revalidatePath(parsedPathName);
+            return { success: true, data: tasks}
+        }
+    }
+    catch (error) {
+        console.log(error);
+        return { success: false, message: 'database error'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
+
+export async function createTask(values: z.infer<typeof taskFormSchema>, pathName: string) {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'}
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'}
+    }
+    try {
+        const parsedData: z.infer<typeof taskFormSchema> = taskFormSchema.parse(values);
+        const parsedPathName: string = z.string().parse(pathName);
+        const currentProject = await prisma.project.findFirst({
+            where: {
+                organization: orgId
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        })
+        if (!currentProject) {
+            return { success: false, message: 'current project not found'}
+        }
+        const newTask = await prisma.task.create({
+            data: {
+                title: parsedData.title,
+                description: parsedData.description,
+                projectId: currentProject.id,
+                ...(!parsedData.dueDate && {due_date: parsedData.dueDate}),
+                ...(!parsedData.priority && {priority: parsedData.priority})
+            }
+        })
+        revalidatePath(parsedPathName);
+        return { success: true, data: newTask }
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error);
+            return { success: false, message: 'validation error'};
+        }
+        console.log(error);
+        return { success: false, message: 'database error'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
+
+export async function updateTask(values: z.infer<typeof taskFormSchema>, pathName: string) {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'};
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'};
+    }
+    try {
+        const parsedData = taskFormSchema.parse(values);
+        const parsedPathName = z.string().parse(pathName);
+        const currentProject = await prisma.project.findFirst({
+            where: {
+                organization: orgId
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        })
+        if (!currentProject) {
+            return { success: false, message: 'no valid organization used'};
+        }
+        const updatedTask = await prisma.task.update({
+            where: {
+                id: parsedData.id,
+                projectId: currentProject.id
+            },
+            data: {
+                title: parsedData.title,
+                description: parsedData.description,
+                ...(!parsedData.dueDate && {due_date: parsedData.dueDate}),
+                ...(!parsedData.priority && {priority: parsedData.priority})
+            }
+        })
+        revalidatePath(parsedPathName);
+        return { success: true, data: updatedTask };
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error);
+            return { success: false, message: 'validation error' };
+        }
     }
     finally {
         await prisma.$disconnect();

@@ -6,12 +6,15 @@ import { createProjectType } from "@/lib/types";
 import { Folder, Pencil, Trash2, MoreHorizontal } from "lucide-react"
 import { useState } from "react";
 import ProjectsDialogs from "./projectsDialogs";
+import { useProject } from "@/lib/actions";
 
 export default function ProjectsDropDownMenu({project}: {project: createProjectType}) {
     const { toast } = useToast();
     const [selection, setSelection] = useState<string|undefined>(undefined);
     
-    const handleMenuSelection = (selectedProject: typeof project) => {
+    const handleMenuSelection = async (selectedProject: typeof project) => {
+        const returnedProject = await useProject(selectedProject.id);
+        console.log(returnedProject.data);
         toast({
             description: `Your project ${selectedProject.name} has been selected`
         })
