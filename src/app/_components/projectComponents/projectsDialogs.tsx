@@ -35,14 +35,17 @@ export default function ProjectsDialogs({project, setSelection, selection}: {pro
 
     const handleEditSubmit = async (values: z.infer<typeof projectFormSchema>, pathName: string) => {
         setSelection(undefined);
-        const editedProject = await editProject(values, pathName)
+        const editedProject = await editProject(values, pathName);
         editedProject?.success && editedProject.data && toast({
             description: `Successfully changed project attributes`
+        })
+        editedProject?.success === false && editedProject.message && toast({
+            description: editedProject.message
         })
     }
     return (
         <>
-        <Dialog open={selection==='delete'} onOpenChange={()=> setSelection(undefined)}>
+        <Dialog open={selection==='delete'} onOpenChange={() => setSelection(undefined)}>
         <DialogContent>
         <DialogHeader>
         <DialogTitle>Are you absolutely sure?</DialogTitle>

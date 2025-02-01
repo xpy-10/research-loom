@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ClerkProvider, SignIn, SignInButton, SignOutButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/app/_components/sidebarNav/app-sidebar";
 import { Separator } from "@radix-ui/react-separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Toaster } from "@/components/ui/toaster";

@@ -196,7 +196,7 @@ export async function useProject(projectId: number) {
     }
 }
 
-export async function fetchTasks(pathName: string) {
+export async function fetchTasks() {
     const { userId, orgId } = await auth();
     if (!userId) {
         return { success:false, message: 'Database error, invalid user'}
@@ -205,7 +205,6 @@ export async function fetchTasks(pathName: string) {
         return { success:false, message: 'Error, no organization selected'}
     }
     try {
-        const parsedPathName: string = z.string().parse(pathName);
         const project = await prisma.project.findFirst({
             where: {
                 organization: orgId,
@@ -220,7 +219,6 @@ export async function fetchTasks(pathName: string) {
                     projectId: project.id
                 }
             })
-            revalidatePath(parsedPathName);
             return { success: true, data: tasks}
         }
     }
@@ -260,11 +258,12 @@ export async function createTask(values: z.infer<typeof taskFormSchema>, pathNam
                 title: parsedData.title,
                 description: parsedData.description,
                 projectId: currentProject.id,
-                ...(!parsedData.dueDate && {due_date: parsedData.dueDate}),
-                ...(!parsedData.priority && {priority: parsedData.priority})
+                due_date: parsedData.dueDate,
+                priority: parsedData.priority
             }
         })
         revalidatePath(parsedPathName);
+        console.log(newTask);
         return { success: true, data: newTask }
     }
     catch (error) {
@@ -310,8 +309,8 @@ export async function updateTask(values: z.infer<typeof taskFormSchema>, pathNam
             data: {
                 title: parsedData.title,
                 description: parsedData.description,
-                ...(!parsedData.dueDate && {due_date: parsedData.dueDate}),
-                ...(!parsedData.priority && {priority: parsedData.priority})
+                due_date: parsedData.dueDate,
+                priority: parsedData.priority
             }
         })
         revalidatePath(parsedPathName);

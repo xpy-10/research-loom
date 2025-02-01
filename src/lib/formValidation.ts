@@ -21,6 +21,6 @@ export const taskFormSchema = z.object({
     description: z.string().max(1000, {
         message: "Maximum of 1000 characters exceeded"
     }),
-    dueDate: z.string().datetime().optional(), 
+    dueDate: z.date().optional(), 
     priority: taskPriorityEnum.optional()
 })

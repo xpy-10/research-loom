@@ -1,7 +1,7 @@
 "use client"
 import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
-import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
+import { NavMain } from "@/app/_components/sidebarNav/nav-main";
+import { NavProjects } from "@/app/_components/sidebarNav/nav-projects";
 import { Sidebar ,SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 import { Project } from '@prisma/client';
