@@ -1,50 +1,58 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { createTask } from "@/lib/actions";
-import { taskFormSchema } from "@/lib/formValidation";
+import { Textarea } from "@/components/ui/textarea";
+import { taskFormSchema, taskPriorityEnum } from "@/lib/formValidation";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { format } from "date-fns";
+import { usePathname } from "next/navigation";
+import { updateTask } from "@/lib/actions";
+import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
-import { Textarea } from "@/components/ui/textarea";
+import { Task } from "@prisma/client"
+import TeamMemberSelector from "./teamMemberSelector";
 
-export default function CreateTaskComponent() {
-    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
+export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTask, setCurrentTask}: {dialogOpen: boolean, setDialogOpen: (arg:boolean) => void, currentTask: Task|undefined, setCurrentTask: (arg:Task|undefined) => void}) {
+    
+    if (!currentTask){
+        return (<></>)
+    }
+
     const pathname = usePathname();
     const { toast } = useToast();
     const taskForm = useForm<z.infer<typeof taskFormSchema>>({
-        resolver: zodResolver(taskFormSchema),
-        defaultValues: {
-            title: "",
-            description: "",
-        }
-    })
-    const handleCreateTask = async (values: z.infer<typeof taskFormSchema>, pathName: string) => {
-        setDialogOpen(false);
-        const newTask = await createTask(values, pathName);
-        newTask?.success && newTask.data && toast({
-            description: `Successfully created new task with title ${newTask.data.title}`
+            resolver: zodResolver(taskFormSchema),
+            defaultValues: {
+                id: currentTask.id,
+                title: currentTask.title,
+                description: currentTask.description,
+                dueDate: currentTask.due_date? new Date(currentTask.due_date): undefined,
+                priority: taskPriorityEnum.parse(currentTask.priority)
+            }
         })
-        newTask?.success === false && newTask.message && toast({
-            description: newTask.message
+
+    const handleSubmit = async (values: z.infer<typeof taskFormSchema>, pathName: string) => {
+        setDialogOpen(false);
+        const updatedTask = await updateTask(values, pathName);
+        updatedTask?.success && updatedTask.data && toast({
+            description: `Successfully updated task with title ${updatedTask.data.title}`
+        })
+        updatedTask?.success === false && updatedTask.message && toast({
+            description: updatedTask.message
         })
     }
 
     return (
         <>
-        <Button onClick={() => setDialogOpen(true)}>Add Task</Button>
-        <Dialog open={dialogOpen===true} onOpenChange={() => setDialogOpen(false)}>
+        <Dialog open={dialogOpen===true} onOpenChange={() => {setDialogOpen(false); setCurrentTask(undefined)}}>
             <DialogContent>
             <DialogHeader>
             <DialogDescription>
@@ -52,7 +60,7 @@ export default function CreateTaskComponent() {
             </DialogDescription>
             <DialogTitle>Create Task Form</DialogTitle>
             <Form {...taskForm}>
-            <form onSubmit={taskForm.handleSubmit((values) => handleCreateTask(values, pathname))} className="space-y-8">
+            <form onSubmit={taskForm.handleSubmit((values) => handleSubmit(values, pathname))} className="space-y-8">
                 <FormField
                 control={taskForm.control}
                 name="title"
@@ -60,7 +68,7 @@ export default function CreateTaskComponent() {
                     <FormItem>
                         <FormLabel>Task Title</FormLabel>
                         <FormControl>
-                            <Input placeholder='...task title'{...field} />
+                            <Input placeholder={currentTask.title}{...field} />
                         </FormControl>
                         <FormDescription>
                             This is your project's Title
@@ -76,12 +84,24 @@ export default function CreateTaskComponent() {
                     <FormItem>
                         <FormLabel>Task Details</FormLabel>
                         <FormControl>
-                            <Textarea placeholder='...task details'{...field} />
+                            <Textarea placeholder={currentTask.description}{...field} />
                         </FormControl>
                         <FormDescription>
                             This is your task's details
                         </FormDescription>
                         <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField 
+                control={taskForm.control}
+                name="assigned_to"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Assigned to </FormLabel>
+                        <FormControl>
+                        <TeamMemberSelector selectedTeamMemberId={currentTask.assigned_to} setSelectedTeamMemberId={field.onChange} {...field}/>
+                        </FormControl>
                     </FormItem>
                 )}
                 />
@@ -98,14 +118,14 @@ export default function CreateTaskComponent() {
                                 {field.value? (
                                     format(field.value, "PPP")
                                 ): (
-                                    <span>Pick a due date</span>
+                                    <span>{currentTask.due_date? format(currentTask.due_date, "PPP"): 'Pick a due date'}</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 opacity-50" />
                             </Button>
                         </FormControl>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-auto p-0 z-50" align="start">
-                            <div className="bg-white rounded border border-black p-3 m-2">
+                            <div className="bg-white rounded border border-black">
                             <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
                             </div>
                         </DropdownMenuContent>

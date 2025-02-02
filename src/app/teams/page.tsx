@@ -20,7 +20,7 @@ export default function MemberList() {
       <ul>
         {memberships.data?.map((membership) => (
           <li key={membership.id}>
-            {membership.organization.id} &lt;
+            {membership.id} &lt;
             {membership.publicUserData.firstName} {membership.publicUserData.lastName} &lt;
             {membership.publicUserData.identifier}&gt; :: {membership.role}
           </li>

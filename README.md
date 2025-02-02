@@ -47,5 +47,9 @@ then
 npm install next-ws ws
 ```
 
+Run to update prisma after schema changes, where CUSTOM_NAME is a name for the migration
+```bash
+npx prisma migrate dev --name CUSTOM_NAME
+```
 
 

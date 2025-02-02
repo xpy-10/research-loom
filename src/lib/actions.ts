@@ -6,7 +6,7 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { projectFormSchema, taskFormSchema } from './formValidation';
+import { inlineTaskFormSchema, projectFormSchema, taskFormSchema } from './formValidation';
 
 const prisma = new PrismaClient();
 
@@ -290,6 +290,7 @@ export async function updateTask(values: z.infer<typeof taskFormSchema>, pathNam
     try {
         const parsedData = taskFormSchema.parse(values);
         const parsedPathName = z.string().parse(pathName);
+        console.log(parsedData);
         const currentProject = await prisma.project.findFirst({
             where: {
                 organization: orgId
@@ -310,7 +311,8 @@ export async function updateTask(values: z.infer<typeof taskFormSchema>, pathNam
                 title: parsedData.title,
                 description: parsedData.description,
                 due_date: parsedData.dueDate,
-                priority: parsedData.priority
+                priority: parsedData.priority,
+                assigned_to: parsedData.assigned_to
             }
         })
         revalidatePath(parsedPathName);
@@ -327,6 +329,53 @@ export async function updateTask(values: z.infer<typeof taskFormSchema>, pathNam
     }
 }
 
+export async function updateTaskInline(values: z.infer<typeof inlineTaskFormSchema>, pathName: string) {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'};
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'};
+    }
+    try {
+        console.log(values);
+        const parsedData = inlineTaskFormSchema.parse(values);
+        const parsedPathName = z.string().parse(pathName);
+        const currentProject = await prisma.project.findFirst({
+            where: {
+                organization: orgId
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        })
+        if (!currentProject) {
+            return { success: false, message: 'no valid organization used'};
+        }
+        const updatedTask = await prisma.task.update({
+            where: {
+                id: parsedData.id,
+                projectId: currentProject.id
+            },
+            data: {
+                due_date: parsedData.dueDate,
+                assigned_to: parsedData.assigned_to,
+                priority: parsedData.priority
+            }
+        })
+        revalidatePath(parsedPathName);
+        return { success: true, data: updatedTask };
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error);
+            return { success: false, message: 'validation error' };
+        }
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
 
 
 

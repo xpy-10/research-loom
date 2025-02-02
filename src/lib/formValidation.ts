@@ -11,7 +11,7 @@ export const projectFormSchema = z.object({
     })
 })
 
-const taskPriorityEnum = z.enum(['LOW', 'MEDIUM', 'HIGH'])
+export const taskPriorityEnum = z.enum(['LOW', 'MEDIUM', 'HIGH'])
 
 export const taskFormSchema = z.object({
     id: z.number().optional(),
@@ -22,5 +22,13 @@ export const taskFormSchema = z.object({
         message: "Maximum of 1000 characters exceeded"
     }),
     dueDate: z.date().optional(), 
-    priority: taskPriorityEnum.optional()
+    assigned_to: z.string().optional(),
+    priority: taskPriorityEnum.optional(),
+})
+
+export const inlineTaskFormSchema = z.object({
+    id: z.number().optional(),
+    dueDate: z.date().optional(),
+    assigned_to: z.string().optional(),
+    priority: taskPriorityEnum.optional(),
 })
