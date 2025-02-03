@@ -104,7 +104,7 @@ export default function CreateTaskComponent() {
                 name="dueDate"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Priority </FormLabel>
+                        <FormLabel>Due date </FormLabel>
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                         <FormControl>

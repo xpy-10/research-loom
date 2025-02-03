@@ -18,6 +18,7 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Task } from "@prisma/client"
 import TeamMemberSelector from "./teamMemberSelector";
+import TaskPrioritySelector from "./taskPrioritySelector";
 
 
 export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTask, setCurrentTask}: {dialogOpen: boolean, setDialogOpen: (arg:boolean) => void, currentTask: Task|undefined, setCurrentTask: (arg:Task|undefined) => void}) {
@@ -95,13 +96,16 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
                 />
                 <FormField 
                 control={taskForm.control}
-                name="assigned_to"
+                name="priority"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Assigned to </FormLabel>
+                        <FormLabel>Priority </FormLabel>
                         <FormControl>
-                        <TeamMemberSelector selectedTeamMemberId={currentTask.assigned_to} setSelectedTeamMemberId={field.onChange} {...field}/>
+                        <TaskPrioritySelector priorityValue={currentTask.priority} onValueChange={field.onChange}{...field}/>
                         </FormControl>
+                        <FormDescription>
+                            You can select a priority for the task
+                        </FormDescription>
                     </FormItem>
                 )}
                 />
@@ -110,7 +114,7 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
                 name="dueDate"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Priority </FormLabel>
+                        <FormLabel>Due date </FormLabel>
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                         <FormControl>
@@ -126,12 +130,27 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-auto p-0 z-50" align="start">
                             <div className="bg-white rounded border border-black">
-                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <Calendar mode="single" selected={field.value} onSelect={field.onChange}{...field} initialFocus />
                             </div>
                         </DropdownMenuContent>
                         </DropdownMenu>
                         <FormDescription>
                             You can optionally select a due date for the task
+                        </FormDescription>
+                    </FormItem>
+                )}
+                />
+                <FormField 
+                control={taskForm.control}
+                name="assigned_to"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Assigned to </FormLabel>
+                        <FormControl>
+                        <TeamMemberSelector selectedTeamMemberId={currentTask.assigned_to} setSelectedTeamMemberId={field.onChange} {...field}/>
+                        </FormControl>
+                        <FormDescription>
+                            You can assign a team member to this task
                         </FormDescription>
                     </FormItem>
                 )}

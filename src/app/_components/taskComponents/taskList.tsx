@@ -3,21 +3,16 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Task } from "@prisma/client"
+import { PriorityTag, Task } from "@prisma/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CreateTaskComponent from "./createTaskComponent";
 import EditTaskComponent from "./editTaskComponent";
-import TeamMemberSelector from "./teamMemberSelector";
-import { updateTask, updateTaskInline } from "@/lib/actions";
-import { usePathname } from "next/navigation";
-import { inlineTaskFormSchema, taskFormSchema } from "@/lib/formValidation";
-import { useToast } from "@/hooks/use-toast";
-import { revalidatePath } from 'next/cache';
-import { useOrganization } from "@clerk/nextjs";
 import TeamMemberChange from "./teamMemberChange";
+import CalendarDueDateSelector from "./calendarDueDateSelector";
+import TaskPriorityChange from "./taskPriorityChange";
 
 
 export default function TaskList({data}: {data: Task[]}) {
@@ -48,7 +43,14 @@ export default function TaskList({data}: {data: Task[]}) {
         },
         {
             accessorKey: 'description',
-            header: 'Description',
+            header: ({ column }) => {
+                return (
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                        Description
+                        <ArrowUpDown />
+                    </Button>
+                )
+            },
             cell: ({ row }) => {
                 return (
                     <div>{row.getValue('description')}</div>
@@ -68,27 +70,60 @@ export default function TaskList({data}: {data: Task[]}) {
             cell: ({ row }) => <div>{row.getValue('title')}</div>
         },
         {
-            accessorKey: 'due_date',
-            header: () => <div>Due Date</div>,
+            accessorKey: 'priority',
+            header: ({ column }) => {
+                return (
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                        Priority
+                        <ArrowUpDown />
+                    </Button>
+                )
+            },
             cell: ({ row }) => {
-                const date = row.getValue('due_date') as Date
-                return <div>{date && date.toISOString()}</div>
+                const task = row.original;
+                return <TaskPriorityChange task={task}/>
+            },
+            sortingFn: (rowA: any, rowB: any, columnId: any): number => {
+                const tag1 = rowA.getValue(columnId);
+                const tag2 = rowB.getValue(columnId);
+                const tag1Number = tag1 === PriorityTag.HIGH?3:tag1 === PriorityTag.MEDIUM?2:tag1 === PriorityTag.LOW?1:1;
+                const tag2Number = tag2 === PriorityTag.HIGH?3:tag2 === PriorityTag.MEDIUM?2:tag2 === PriorityTag.LOW?1:1;
+                if (tag1Number > tag2Number) {
+                    return -1;
+                }
+                else if (tag1Number < tag2Number) {
+                    return 1;
+                }
+                return 0;
+            }
+        },
+        {
+            accessorKey: 'due_date',
+            header: ({ column }) => {
+                return (
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                        Due Date
+                        <ArrowUpDown />
+                    </Button>
+                )
+            },
+            cell: ({ row }) => {
+                const task = row.original;
+                return <CalendarDueDateSelector task={task} />
             }
         },
         {
             accessorKey: 'assigned_to',
-            header: () => <div>Assigned to</div>,
+            header: ({ column }) => {
+                return (
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                        Assigned to
+                        <ArrowUpDown />
+                    </Button>
+                )
+            },
             cell: ({ row }) => {
-                return <TeamMemberChange task={row.original}></TeamMemberChange>
-            }
-        },
-        {
-            accessorKey: 'priority',
-            header: () => <div>Priority</div>,
-            cell: ({ row }) => {
-                const priorityStatus = row.getValue('priority');
-                const bgColour = priorityStatus
-                return <div>{row.getValue('priority')}</div>
+                return <TeamMemberChange task={row.original} />
             }
         },
         {

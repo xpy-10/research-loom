@@ -36,12 +36,12 @@ export default function TeamMemberSelector({selectedTeamMemberId, setSelectedTea
                 <DropdownMenuRadioGroup value={assignee} onValueChange={(value)=> {setAssignee(value)}}>
                 <DropdownMenuRadioItem onClick={() => {setSelectedTeamMemberId(''); setAssignee('Not Assigned')}} value={'Not Assigned'}>
                                Not Assigned
-                            </DropdownMenuRadioItem>
+                </DropdownMenuRadioItem>
                    { memberships.data?.map((membership) => {
                         const firstName = membership.publicUserData.firstName||membership.publicUserData.identifier;
                         const lastName = membership.publicUserData.lastName||'';
                         return (
-                            <DropdownMenuRadioItem onClick={() => setSelectedTeamMemberId(membership.id)} key={membership.id} value={`${firstName} ${lastName}`}>
+                            <DropdownMenuRadioItem key={membership.id} onClick={() => setSelectedTeamMemberId(membership.id)} value={`${firstName} ${lastName}`}>
                                 {`${firstName} ${lastName}`}
                             </DropdownMenuRadioItem>
                             )

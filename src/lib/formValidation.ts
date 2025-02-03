@@ -11,7 +11,14 @@ export const projectFormSchema = z.object({
     })
 })
 
+enum TaskPriority{
+    LOW = 'LOW',
+    MEDIUM = 'MEDIUM',
+    HIGH = 'HIGH'
+}
+
 export const taskPriorityEnum = z.enum(['LOW', 'MEDIUM', 'HIGH'])
+export const taskPriorityEnum2 = z.nativeEnum(TaskPriority)
 
 export const taskFormSchema = z.object({
     id: z.number().optional(),
@@ -32,3 +39,4 @@ export const inlineTaskFormSchema = z.object({
     assigned_to: z.string().optional(),
     priority: taskPriorityEnum.optional(),
 })
+
