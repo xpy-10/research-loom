@@ -322,7 +322,9 @@ export async function updateTask(values: z.infer<typeof taskFormSchema>, pathNam
         if (error instanceof z.ZodError) {
             console.log(error);
             return { success: false, message: 'validation error' };
-        }
+        };
+        console.log(error);
+        return { success: false, message: 'database error'};
     }
     finally {
         await prisma.$disconnect();
@@ -338,7 +340,6 @@ export async function updateTaskInline(values: z.infer<typeof inlineTaskFormSche
         return { success:false, message: 'Error, no organization selected'};
     }
     try {
-        console.log(values);
         const parsedData = inlineTaskFormSchema.parse(values);
         const parsedPathName = z.string().parse(pathName);
         const currentProject = await prisma.project.findFirst({
@@ -370,7 +371,53 @@ export async function updateTaskInline(values: z.infer<typeof inlineTaskFormSche
         if (error instanceof z.ZodError) {
             console.log(error);
             return { success: false, message: 'validation error' };
+        };
+        console.log(error);
+        return { success: false, message: 'database error'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
+
+export async function deleteTask(values: z.infer<typeof inlineTaskFormSchema>, pathName: string) {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'};
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'};
+    }
+    try {
+        const parsedData = inlineTaskFormSchema.parse(values);
+        const parsedPathName = z.string().parse(pathName);
+        const currentProject = await prisma.project.findFirst({
+            where: {
+                organization: orgId
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        })
+        if (!currentProject) {
+            return { success: false, message: 'no valid organization used'};
         }
+        const deletedTask = await prisma.task.delete({
+            where: {
+                id: parsedData.id,
+                projectId: currentProject.id
+            },
+        })
+        revalidatePath(parsedPathName);
+        return { success: true, data: deletedTask };
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error);
+            return { success: false, message: 'validation error' };
+        };
+        console.log(error);
+        return { success: false, message: 'database error'};
     }
     finally {
         await prisma.$disconnect();

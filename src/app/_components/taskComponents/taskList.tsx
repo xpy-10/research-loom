@@ -13,6 +13,8 @@ import EditTaskComponent from "./editTaskComponent";
 import TeamMemberChange from "./teamMemberChange";
 import CalendarDueDateSelector from "./calendarDueDateSelector";
 import TaskPriorityChange from "./taskPriorityChange";
+import TaskOptions from "./taskOptions";
+import TaskDeleteDialog from "./taskDeleteDialog";
 
 
 export default function TaskList({data}: {data: Task[]}) {
@@ -21,6 +23,7 @@ export default function TaskList({data}: {data: Task[]}) {
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({})
     const [viewTaskDialog, setViewTaskDialog] = useState(false);
+    const [deleteTaskDialog, setDeleteTaskDialog] = useState(false);
     const [taskDialogData, setTaskDialogData] = useState<Task|undefined>(undefined);
     
     const columns: ColumnDef<Task>[] = [
@@ -132,26 +135,7 @@ export default function TaskList({data}: {data: Task[]}) {
             cell: ({ row }) => {
                 const task = row.original;
                 return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="text-sidebar-foreground/90"/>
-                                <span className="sr-only">Open menu</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Menu</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => console.log(task)}>
-                            View Task
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {setViewTaskDialog(true); setTaskDialogData(task)}}>
-                            Edit Task
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => console.log(`clicked to delete task ${task.title}`)}>
-                            Delete Task
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                    </DropdownMenu>
+                   <TaskOptions task={task} setViewTaskDialog={setViewTaskDialog} setTaskDialogData={setTaskDialogData} setDeleteTaskDialog={setDeleteTaskDialog} />
                 )
             }
         }
@@ -248,7 +232,7 @@ export default function TaskList({data}: {data: Task[]}) {
                 </Table>
             </div>
             <EditTaskComponent dialogOpen={viewTaskDialog} setDialogOpen={setViewTaskDialog} currentTask={taskDialogData} setCurrentTask={setTaskDialogData}/>
-
+            <TaskDeleteDialog deleteTaskDialog={deleteTaskDialog} setDeleteTaskDialog={setDeleteTaskDialog} currentTask={taskDialogData} />
         </div>
         </>
     )
