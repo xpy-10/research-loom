@@ -1,9 +1,8 @@
 'use client'
-import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { PriorityTag, Task } from "@prisma/client";
+import { PriorityTag } from "@prisma/client";
 import { taskPriorityEnum } from "@/lib/formValidation";
+import { buttonStyle } from "@/lib/utils";
 
 export default function TaskPrioritySelector({priorityValue, onValueChange}:{priorityValue: PriorityTag, onValueChange:(tag:PriorityTag) => void}) {
         const priorityVariants = PriorityTag;
@@ -11,9 +10,9 @@ export default function TaskPrioritySelector({priorityValue, onValueChange}:{pri
         <>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant={'outline'} className={cn("w-[[240px] pl-3 text-left font-normal")}>
+                <div className={`${buttonStyle}`}>
                     {priorityValue}
-                </Button>
+                </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-auto p-0 z-50" align="start">
             <DropdownMenuLabel>Priority</DropdownMenuLabel>

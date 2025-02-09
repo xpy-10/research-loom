@@ -40,3 +40,16 @@ export const inlineTaskFormSchema = z.object({
     priority: taskPriorityEnum.optional(),
 })
 
+export const taskStatusFormSchema = z.object({
+    label: z.string().max(25, {
+        message: "Maximum of 25 characters allowed"
+    }).min(1, {
+        message: "Minimum of 1 character needed"
+    })
+})
+
+export const taskStatusChangeFormSchema = z.object({
+    taskId: z.number(),
+    taskLabelId: z.number()
+})
+

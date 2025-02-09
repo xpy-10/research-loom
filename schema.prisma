@@ -23,17 +23,29 @@ model Project {
     lastUsed        DateTime?
     Tasks           Task[]
     Documents       Document[]
+    TaskStatus      TaskStatus[]
 }
 
 model Task {
-    id          Int  @id @default(autoincrement())
-    title       String
-    description String
-    due_date    DateTime?
-    assigned_to String?
-    priority    PriorityTag @default(LOW)
-    project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId   Int 
+    id            Int  @id @default(autoincrement())
+    title         String
+    description   String
+    due_date      DateTime?
+    assigned_to   String?
+    priority      PriorityTag @default(LOW)
+    taskStatus    TaskStatus? @relation(fields: [taskStatusId], references: [id])
+    taskStatusId  Int?
+    project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId     Int 
+}
+
+model TaskStatus {
+    id          Int @id @default(autoincrement())
+    label       String
+    tasks       Task[]
+    project     Project @ relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId   Int
+    @@unique([label, projectId])
 }
 
 model Document {
@@ -43,5 +55,8 @@ model Document {
     project     Project @relation(fields: [projectId], references: [id])
     projectId   Int
 }
+
+
+
 
 

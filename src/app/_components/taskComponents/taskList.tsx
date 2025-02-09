@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PriorityTag, Task } from "@prisma/client"
+import { PriorityTag, Task, TaskStatus } from "@prisma/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
@@ -15,9 +15,11 @@ import CalendarDueDateSelector from "./calendarDueDateSelector";
 import TaskPriorityChange from "./taskPriorityChange";
 import TaskOptions from "./taskOptions";
 import TaskDeleteDialog from "./taskDeleteDialog";
+import CreateTaskStatusComponent from "../taskStatusComponents/createTaskStatusComponent";
+import SelectTaskStatusComponent from "../taskStatusComponents/selectTaskStatusComponent";
 
 
-export default function TaskList({data}: {data: Task[]}) {
+export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: TaskStatus[]}) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -26,7 +28,7 @@ export default function TaskList({data}: {data: Task[]}) {
     const [deleteTaskDialog, setDeleteTaskDialog] = useState(false);
     const [taskDialogData, setTaskDialogData] = useState<Task|undefined>(undefined);
     
-    const columns: ColumnDef<Task>[] = [
+    const columns: ColumnDef<Task >[] = [
         {
             id: 'select',
             header: ({ table }) => (
@@ -71,6 +73,22 @@ export default function TaskList({data}: {data: Task[]}) {
                 )
             },
             cell: ({ row }) => <div>{row.getValue('title')}</div>
+        },
+        {
+            accessorKey: 'status',
+            header: ({ column })=> {
+                return (
+                    <>Task Status</>
+                )
+            },
+            cell: ({ row }) => {
+                const task = row.original
+                return (
+                    <>
+                    <SelectTaskStatusComponent task={task} taskStatusLabels={taskStatus}/>
+                    </>
+                )
+            }
         },
         {
             accessorKey: 'priority',
@@ -169,7 +187,8 @@ export default function TaskList({data}: {data: Task[]}) {
                     className="max-w-sm"
                 />
                 <div className="flex ml-auto gap-4">
-                <CreateTaskComponent/>
+                <CreateTaskComponent />
+                <CreateTaskStatusComponent />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">

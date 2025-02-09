@@ -6,7 +6,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { taskFormSchema, taskPriorityEnum } from "@/lib/formValidation";
-import { cn } from "@/lib/utils";
+import { buttonStyle, cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
@@ -118,14 +118,15 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                         <FormControl>
-                            <Button variant={'outline'} className={cn("w-[[240px] pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                            <div className={`${buttonStyle}`}>
                                 {field.value? (
                                     format(field.value, "PPP")
                                 ): (
                                     <span>{currentTask.due_date? format(currentTask.due_date, "PPP"): 'Pick a due date'}</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 opacity-50" />
-                            </Button>
+
+                            </div>
                         </FormControl>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-auto p-0 z-50" align="start">

@@ -3,7 +3,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { updateTaskInline } from "@/lib/actions";
-import { cn } from "@/lib/utils";
+import { buttonStyle, cn } from "@/lib/utils";
 import { Task } from "@prisma/client";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -34,14 +34,14 @@ export default function CalendarDueDateSelector({task}:{task:Task}) {
         <>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant={'outline'} className={cn("w-[[240px] pl-3 text-left font-normal", !pickedDate && "text-muted-foreground")}>
+                <div className={`${buttonStyle}`}>
                     {pickedDate? (
                         format(pickedDate, "PPP")
                     ): (
                         <span>{pickedDate? format(pickedDate, "PPP"): 'Pick a due date'}</span>
                     )}
                     <CalendarIcon className="ml-auto h-4 opacity-50" />
-                </Button>
+                </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-auto p-0 z-50" align="start">
                 <div className="bg-white rounded border border-black">

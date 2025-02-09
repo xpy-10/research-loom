@@ -6,7 +6,8 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { inlineTaskFormSchema, projectFormSchema, taskFormSchema } from './formValidation';
+import { inlineTaskFormSchema, projectFormSchema, taskFormSchema, taskStatusChangeFormSchema, taskStatusFormSchema } from './formValidation';
+import { useOrganization } from '@clerk/nextjs';
 
 const prisma = new PrismaClient();
 
@@ -217,7 +218,7 @@ export async function fetchTasks() {
             const tasks = await prisma.task.findMany({
                 where: {
                     projectId: project.id
-                }
+                },
             })
             return { success: true, data: tasks}
         }
@@ -300,7 +301,7 @@ export async function updateTask(values: z.infer<typeof taskFormSchema>, pathNam
             }
         })
         if (!currentProject) {
-            return { success: false, message: 'no valid organization used'};
+            return { success: false, message: 'no valid project used'};
         }
         const updatedTask = await prisma.task.update({
             where: {
@@ -351,7 +352,7 @@ export async function updateTaskInline(values: z.infer<typeof inlineTaskFormSche
             }
         })
         if (!currentProject) {
-            return { success: false, message: 'no valid organization used'};
+            return { success: false, message: 'no valid project used'};
         }
         const updatedTask = await prisma.task.update({
             where: {
@@ -400,7 +401,7 @@ export async function deleteTask(values: z.infer<typeof inlineTaskFormSchema>, p
             }
         })
         if (!currentProject) {
-            return { success: false, message: 'no valid organization used'};
+            return { success: false, message: 'no valid project used'};
         }
         const deletedTask = await prisma.task.delete({
             where: {
@@ -424,7 +425,128 @@ export async function deleteTask(values: z.infer<typeof inlineTaskFormSchema>, p
     }
 }
 
+export async function createTaskStatus(values: z.infer<typeof taskStatusFormSchema>, pathName: string) {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'};
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'};
+    }
+    try {
+        const parsedData = taskStatusFormSchema.parse(values);
+        const parsedPathName = z.string().parse(pathName);
+        const currentProject = await prisma.project.findFirst({
+            where: {
+                organization: orgId
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        });
+        if (!currentProject) {
+            return { success: false, message: 'no valid project used'};
+        };
+        const newTaskStatusLabel = await prisma.taskStatus.create({
+            data: {
+                label: parsedData.label,
+                projectId: currentProject.id
+            }
+        });
+        revalidatePath(parsedPathName);
+        return { success: true, data: newTaskStatusLabel };
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error);
+            return { success: false, message: 'validation error' };
+        };
+        console.log(error);
+        return { success: false, message: 'database error'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
 
+export async function fetchAllTaskStatus() {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'};
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'};
+    }
+    try {
+        const currentProject = await prisma.project.findFirst({
+            where: {
+                organization: orgId
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        });
+        if (!currentProject) {
+            return { success: false, message: 'no valid project used'};
+        };
+        const taskStatusEntries = await prisma.taskStatus.findMany({
+            where: {
+                projectId: currentProject.id
+            }
+        });
+        return { success: true, data: taskStatusEntries };
+    }
+    catch (error) {
+        console.log(error);
+        return { success: false, message: 'database error'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
 
-
-  
+export async function changeTaskStatus(values: z.infer<typeof taskStatusChangeFormSchema>) {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'};
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'};
+    }
+    try {
+        const parsedData = taskStatusChangeFormSchema.parse(values);
+        const currentProject = await prisma.project.findFirst({
+            where: {
+                organization: orgId
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        });
+        if (!currentProject) {
+            return { success: false, message: 'no valid organization used'};
+        };
+        const editedTask = await prisma.task.update({
+            where: {
+                id: parsedData.taskId,
+                projectId: currentProject.id
+            },
+            data: {
+                taskStatusId: parsedData.taskLabelId
+            }
+        })
+        return { success: true, data: editedTask }
+    
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error);
+            return { success: false, message: 'validation error' };
+        };
+        console.log(error);
+        return { success: false, message: 'database error'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}

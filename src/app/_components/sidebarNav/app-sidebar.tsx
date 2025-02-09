@@ -20,7 +20,7 @@ const data = {
         },
         {
           title: "Kanban Board",
-          url: "#",
+          url: "/kanban",
         },
         {
           title: "Gantt Chart",

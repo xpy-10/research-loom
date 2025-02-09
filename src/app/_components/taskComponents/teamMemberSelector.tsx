@@ -1,6 +1,7 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
+import { buttonStyle } from "@/lib/utils";
 import { useOrganization } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 
@@ -28,7 +29,9 @@ export default function TeamMemberSelector({selectedTeamMemberId, setSelectedTea
         <>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-            <Button variant={'outline'}>{assignee}</Button>
+            <div className={`${buttonStyle}`}>
+                {assignee}
+            </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuLabel>Assignee</DropdownMenuLabel>
