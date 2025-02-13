@@ -1,4 +1,3 @@
-import type { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -7,13 +6,6 @@ import { cva } from "class-variance-authority";
 import { GripVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Task } from "@prisma/client";
-// import { ColumnId } from "./kanbanBoard";
-
-// export interface Task {
-//   id: UniqueIdentifier;
-//   columnId: number;
-//   content: string;
-// }
 
 interface TaskCardProps {
   task: Task;
@@ -79,11 +71,11 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
           <GripVertical />
         </Button>
         <Badge variant={"outline"} className="ml-auto font-semibold">
-          Task
+          {task.title}
         </Badge>
       </CardHeader>
       <CardContent className="px-3 pt-3 pb-6 text-left whitespace-pre-wrap">
-        {task.title}
+        {task.description}
       </CardContent>
     </Card>
   );

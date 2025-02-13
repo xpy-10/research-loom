@@ -37,14 +37,16 @@ model Task {
     taskStatusId  Int?
     project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId     Int 
+    kanbanSort    Int? 
 }
 
 model TaskStatus {
-    id          Int @id @default(autoincrement())
-    label       String
-    tasks       Task[]
-    project     Project @ relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId   Int
+    id              Int @id @default(autoincrement())
+    label           String
+    tasks           Task[]
+    project         Project @ relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId       Int
+    kanbanColSort   Int?
     @@unique([label, projectId])
 }
 

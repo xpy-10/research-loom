@@ -48,8 +48,17 @@ export const taskStatusFormSchema = z.object({
     })
 })
 
-export const taskStatusChangeFormSchema = z.object({
+export const changeTaskStatusFormSchema = z.object({
     taskId: z.number(),
-    taskLabelId: z.number()
+    taskLabelId: z.number().optional(),
+    kanbanSort: z.number().optional()
 })
 
+export const taskStatusChangeManySchema = z.array(changeTaskStatusFormSchema);
+
+export const changeTaskStatusAttributesFormSchema = z.object({
+    id: z.number(),
+    kanbanColSort: z.number()
+})
+
+export const taskStatusAttributesChangeManySchema = z.array(changeTaskStatusAttributesFormSchema)

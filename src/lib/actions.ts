@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { inlineTaskFormSchema, projectFormSchema, taskFormSchema, taskStatusChangeFormSchema, taskStatusFormSchema } from './formValidation';
+import { inlineTaskFormSchema, projectFormSchema, taskFormSchema, changeTaskStatusFormSchema, taskStatusChangeManySchema, taskStatusFormSchema } from './formValidation';
 
 const prisma = new PrismaClient();
 
@@ -508,7 +508,7 @@ export async function fetchAllTaskStatus() {
     }
 }
 
-export async function changeTaskStatus(values: z.infer<typeof taskStatusChangeFormSchema>) {
+export async function changeTaskStatus(values: z.infer<typeof changeTaskStatusFormSchema>) {
     const { userId, orgId } = await auth();
     if (!userId) {
         return { success:false, message: 'Database error, invalid user'};
@@ -517,7 +517,7 @@ export async function changeTaskStatus(values: z.infer<typeof taskStatusChangeFo
         return { success:false, message: 'Error, no organization selected'};
     }
     try {
-        const parsedData = taskStatusChangeFormSchema.parse(values);
+        const parsedData = changeTaskStatusFormSchema.parse(values);
         const currentProject = await prisma.project.findFirst({
             where: {
                 organization: orgId
@@ -540,6 +540,75 @@ export async function changeTaskStatus(values: z.infer<typeof taskStatusChangeFo
         })
         return { success: true, data: editedTask }
     
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error);
+            return { success: false, message: 'validation error' };
+        };
+        console.log(error);
+        return { success: false, message: 'database error'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
+
+export async function changeTaskAttributesKanban(values: z.infer<typeof taskStatusChangeManySchema>) {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'};
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'};
+    }
+    try {
+        const parsedData = taskStatusChangeManySchema.parse(values);
+        const currentProject = await prisma.project.findFirst({
+            where: {
+                organization: orgId
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        });
+        if (!currentProject) {
+            return { success: false, message: 'no valid organization used'};
+        };
+        const changedTasks = await prisma.$transaction( async (transaction) => {
+            let results = [];
+            for (const data of parsedData) {
+                if (data.taskLabelId && data.taskLabelId >= 0) {
+                    const changedTask = await transaction.task.update({
+                        where: {
+                            id: data.taskId
+                        },
+                        data: {
+                            taskStatusId: data.taskLabelId,
+                            kanbanSort: data.kanbanSort
+                        }
+                    });
+                    results.push(changedTask);
+                }
+                else if (data.taskLabelId == -1) {
+                    const changedTask = await transaction.task.update({
+                        where: {
+                            id: data.taskId
+                        },
+                        data: {
+                            kanbanSort: data.kanbanSort,
+                            taskStatusId: undefined,
+                            taskStatus: {
+                                disconnect: true
+                            }
+                        }
+                    });
+                    results.push(changedTask);
+                }
+            };
+            return results;
+        })
+        return { success: true, data: changedTasks };
     }
     catch (error) {
         if (error instanceof z.ZodError) {
