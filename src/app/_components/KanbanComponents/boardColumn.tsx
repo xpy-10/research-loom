@@ -2,9 +2,9 @@ import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { useDndContext, type UniqueIdentifier } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useMemo } from "react";
-import { Task, TaskCard } from "./taskCard";
+import { TaskCard } from "./taskCard";
 import { cva } from "class-variance-authority";
-// import { Card, CardContent, CardHeader } from """;
+import { Task } from "@prisma/client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GripVertical } from "lucide-react";
@@ -12,7 +12,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export interface Column {
   id: UniqueIdentifier;
-  title: string;
+  label: string;
 }
 
 export type ColumnType = "Column";
@@ -47,7 +47,7 @@ export function BoardColumn({ column, tasks, isOverlay }: BoardColumnProps) {
       column,
     } satisfies ColumnDragData,
     attributes: {
-      roleDescription: `Column: ${column.title}`,
+      roleDescription: `Column: ${column.label}`,
     },
   });
 
@@ -84,10 +84,10 @@ export function BoardColumn({ column, tasks, isOverlay }: BoardColumnProps) {
           {...listeners}
           className=" p-1 text-primary/50 -ml-2 h-auto cursor-grab relative"
         >
-          <span className="sr-only">{`Move column: ${column.title}`}</span>
+          <span className="sr-only">{`Move column: ${column.label}`}</span>
           <GripVertical />
         </Button>
-        <span className="ml-auto"> {column.title}</span>
+        <span className="ml-auto"> {column.label}</span>
       </CardHeader>
       <ScrollArea>
         <CardContent className="flex flex-grow flex-col gap-2 p-2">
