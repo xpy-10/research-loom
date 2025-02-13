@@ -2,12 +2,11 @@
 
 import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
 import {s} from 'json-joy/lib/json-crdt-patch';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { inlineTaskFormSchema, projectFormSchema, taskFormSchema, taskStatusChangeFormSchema, taskStatusFormSchema } from './formValidation';
-import { useOrganization } from '@clerk/nextjs';
 
 const prisma = new PrismaClient();
 
@@ -25,20 +24,24 @@ export async function retrieveDocument() {
 
 export async function createProject(values: z.infer<typeof projectFormSchema>, pathName: string) {
     const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'}
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'}
+    }
     
     try {
         const parsedData: z.infer<typeof projectFormSchema> = projectFormSchema.parse(values);
         const parsedPathName: string = z.string().parse(pathName);
         const existingProject = await prisma.project.findFirst({
             where: {
-                name: parsedData.projectName
+                name: parsedData.projectName,
+                organization: orgId as string
             }
         })
         if (existingProject) {
             return { success: false, message: 'Project with same name already exists'};
-        }
-        if (!userId){
-            return { success: false, message: 'Problem with authorization, please make sure you are logged in'};
         }
         const newProject = await prisma.project.create({
             data: {
