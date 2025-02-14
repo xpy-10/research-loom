@@ -6,15 +6,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { PriorityTag, Task, TaskStatus } from "@prisma/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import CreateTaskComponent from "./createTaskComponent";
-import EditTaskComponent from "./editTaskComponent";
 import TeamMemberChange from "./teamMemberChange";
 import CalendarDueDateSelector from "./calendarDueDateSelector";
 import TaskPriorityChange from "./taskPriorityChange";
 import TaskOptions from "./taskOptions";
-import TaskDeleteDialog from "./taskDeleteDialog";
 import CreateTaskStatusComponent from "../taskStatusComponents/createTaskStatusComponent";
 import SelectTaskStatusComponent from "../taskStatusComponents/selectTaskStatusComponent";
 
@@ -152,8 +150,16 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
             enableHiding: false,
             cell: ({ row }) => {
                 const task = row.original;
+                const props = {
+                    task: task,
+                    setViewTaskDialog: setViewTaskDialog,
+                    viewTaskDialog: viewTaskDialog,
+                    setTaskDialogData: setTaskDialogData,
+                    setDeleteTaskDialog: setDeleteTaskDialog,
+                    deleteTaskDialog: deleteTaskDialog
+                }
                 return (
-                   <TaskOptions task={task} setViewTaskDialog={setViewTaskDialog} setTaskDialogData={setTaskDialogData} setDeleteTaskDialog={setDeleteTaskDialog} />
+                   <TaskOptions {...props} />
                 )
             }
         }
@@ -250,8 +256,6 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
                     </TableBody>
                 </Table>
             </div>
-            <EditTaskComponent dialogOpen={viewTaskDialog} setDialogOpen={setViewTaskDialog} currentTask={taskDialogData} setCurrentTask={setTaskDialogData}/>
-            <TaskDeleteDialog deleteTaskDialog={deleteTaskDialog} setDeleteTaskDialog={setDeleteTaskDialog} currentTask={taskDialogData} />
         </div>
         </>
     )

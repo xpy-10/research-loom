@@ -1,11 +1,16 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cva } from "class-variance-authority";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Task } from "@prisma/client";
+import TaskOptions from "../taskComponents/taskOptions";
+import { useState } from "react";
+import EditTaskComponent from "../taskComponents/editTaskComponent";
+import TaskDeleteDialog from "../taskComponents/taskDeleteDialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TaskCardProps {
   task: Task;
@@ -20,14 +25,7 @@ export interface TaskDragData {
 }
 
 export function TaskCard({ task, isOverlay }: TaskCardProps) {
-  const {
-    setNodeRef,
-    attributes,
-    listeners,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+  const {setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: {
       type: "Task",
@@ -38,6 +36,17 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
     },
   });
 
+  const [viewTaskDialog, setViewTaskDialog] = useState(false);
+  const [taskDialogData, setTaskDialogData] = useState<Task|undefined>(undefined);
+  const [deleteTaskDialog, setDeleteTaskDialog] = useState(false);
+  const taskOptionProps = {
+    task: task,
+    setViewTaskDialog: setViewTaskDialog,
+    viewTaskDialog: viewTaskDialog,
+    setTaskDialogData: setTaskDialogData,
+    setDeleteTaskDialog: setDeleteTaskDialog,
+    deleteTaskDialog: deleteTaskDialog
+  }
   const style = {
     transition,
     transform: CSS.Translate.toString(transform),
@@ -53,6 +62,7 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
   });
 
   return (
+    <>
     <Card
       ref={setNodeRef}
       style={style}
@@ -77,6 +87,12 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
       <CardContent className="px-3 pt-3 pb-6 text-left whitespace-pre-wrap">
         {task.description}
       </CardContent>
+      <CardFooter>
+        <div className="flex ml-auto ">
+        <TaskOptions {...taskOptionProps} />
+        </div>
+      </CardFooter>
     </Card>
+    </>
   );
 }

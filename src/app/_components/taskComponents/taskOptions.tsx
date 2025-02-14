@@ -3,18 +3,40 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { buttonStyleGhost } from "@/lib/utils";
 import { Task } from "@prisma/client";
 import { Folder, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import EditTaskComponent from "./editTaskComponent";
+import TaskDeleteDialog from "./taskDeleteDialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-export default function TaskOptions({task, setViewTaskDialog, setTaskDialogData, setDeleteTaskDialog}:{task:Task, setViewTaskDialog: (arg:boolean) => void, setTaskDialogData: (arg:Task) => void, setDeleteTaskDialog: (arg:boolean) => void}) {
+type taskOptionsType = {
+    task: Task,
+    setViewTaskDialog: (arg: boolean) => void,
+    viewTaskDialog: boolean,
+    setTaskDialogData: (arg: Task|undefined) => void,
+    setDeleteTaskDialog: (arg: boolean) => void,
+    deleteTaskDialog: boolean
+
+
+}
+export default function TaskOptions({task, setViewTaskDialog, viewTaskDialog, setTaskDialogData, setDeleteTaskDialog, deleteTaskDialog}: taskOptionsType) {
 
     return (
         <>
         <DropdownMenu>
+        <TooltipProvider>
+        <Tooltip>
+        <TooltipTrigger asChild>
         <DropdownMenuTrigger asChild>
             <div className={`${buttonStyleGhost}`}>
                 <MoreHorizontal className="text-sidebar-foreground/90"/>
                 <span className="sr-only">Open menu</span>
             </div>
         </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+            Task options
+        </TooltipContent>
+        </Tooltip>
+        </TooltipProvider>
         <DropdownMenuContent align="end">
             <DropdownMenuLabel>Menu</DropdownMenuLabel>
             <DropdownMenuItem className="cursor-pointer" onClick={() => {setViewTaskDialog(true); setTaskDialogData(task)}}>
@@ -27,6 +49,8 @@ export default function TaskOptions({task, setViewTaskDialog, setTaskDialogData,
             </DropdownMenuItem>
         </DropdownMenuContent>
         </DropdownMenu>
+        <EditTaskComponent dialogOpen={viewTaskDialog} setDialogOpen={setViewTaskDialog} currentTask={task} setCurrentTask={setTaskDialogData}/>
+        <TaskDeleteDialog deleteTaskDialog={deleteTaskDialog} setDeleteTaskDialog={setDeleteTaskDialog} currentTask={task} />
         </>
     )
 }

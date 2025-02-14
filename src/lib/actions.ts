@@ -297,7 +297,6 @@ export async function updateTask(values: z.infer<typeof taskFormSchema>, pathNam
     try {
         const parsedData = taskFormSchema.parse(values);
         const parsedPathName = z.string().parse(pathName);
-        console.log(parsedData);
         const currentProject = await prisma.project.findFirst({
             where: {
                 organization: orgId
@@ -665,7 +664,6 @@ export async function changeTaskStatusKanbanSort(values: z.infer<typeof taskStat
                     }
                 });
               results.push(changedTaskStatus);
-              console.log(changedTaskStatus);
             };
             return results;
         })
