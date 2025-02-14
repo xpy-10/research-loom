@@ -9,7 +9,6 @@ export default async function Kanban() {
 
     return ( 
         <>
-        <CreateTaskStatusComponent />
         <div>
         { canRender && <KanbanBoard taskStatusLabels={taskStatusLabels.data} taskList={taskList.data}/>}
         </div>

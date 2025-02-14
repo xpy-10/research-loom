@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { BoardColumn, BoardContainer } from "./boardColumn";
 import { DndContext, type DragEndEvent, type DragOverEvent, DragOverlay, type DragStartEvent, useSensor, useSensors, KeyboardSensor, Announcements, UniqueIdentifier, TouchSensor, MouseSensor } from "@dnd-kit/core";
@@ -10,13 +10,13 @@ import { hasDraggableData } from "@/lib/utils";
 import { coordinateGetter } from "./multipleContainersKeyboardPreset";
 import { TaskStatus, Task } from "@prisma/client";
 import { z } from "zod";
-import { taskStatusChangeManySchema } from "@/lib/formValidation";
-import { changeTaskAttributesKanban } from "@/lib/actions";
+import { taskStatusChangeManySchema, taskStatusKanbanSort } from "@/lib/formValidation";
+import { changeTaskAttributesKanban, changeTaskStatusKanbanSort } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 
 export function KanbanBoard({taskStatusLabels, taskList}:{taskStatusLabels:TaskStatus[], taskList:Task[]}) {
-
     const uncategorizedColumn = {id: -1, label: 'uncategorized'}
+    taskStatusLabels.map((label) => {console.log(label.id, label.kanbanColSort)})
     const [columns, setColumns] = useState<Column[]>([uncategorizedColumn, ...taskStatusLabels]);
     const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
     const [tasks, setTasks] = useState<Task[]>(taskList);
@@ -30,13 +30,12 @@ export function KanbanBoard({taskStatusLabels, taskList}:{taskStatusLabels:TaskS
     }, [])
 
     useEffect(() => {
+        if (!isClient) return;
         let updateArray: z.infer<typeof taskStatusChangeManySchema> = []
         tasks.map((task, index) => {
-            console.log(index, task.id, task.taskStatusId)
             updateArray.push({taskId: task.id, kanbanSort: index,  taskLabelId: task.taskStatusId? task.taskStatusId: -1})
-        })
+        });
         changeTaskAttributesKanban(updateArray).then((response) => {
-          console.log(response);
           response.success && response.data && toast({
             description: 'tasks successfully updated'
           });
@@ -53,9 +52,25 @@ export function KanbanBoard({taskStatusLabels, taskList}:{taskStatusLabels:TaskS
     }, [tasks])
 
     useEffect(() => {
-        // columns.map((column, index) => {
-        //     console.log(index, column.id, column.label)
-        // })
+        if (!isClient) return;
+        let updateArray: z.infer<typeof taskStatusKanbanSort> = []
+        columns.map((column, index) => {
+          console.log(column, index)
+            updateArray.push({id: Number(column.id), kanbanColSort: index})
+        });
+        changeTaskStatusKanbanSort(updateArray).then((response) => {
+          response.success && response.data && toast({
+            description: 'columns successfully updated'
+          });
+          !response.success && response.message && toast({
+            description: "error updating the columns"
+          })
+        }).catch((error) => {
+          console.log(error);
+          toast({
+            description: "error with database operation"
+          })
+        });
     }, [columns])
     
     const sensors = useSensors(

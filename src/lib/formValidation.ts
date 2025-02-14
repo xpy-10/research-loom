@@ -61,4 +61,4 @@ export const changeTaskStatusAttributesFormSchema = z.object({
     kanbanColSort: z.number()
 })
 
-export const taskStatusAttributesChangeManySchema = z.array(changeTaskStatusAttributesFormSchema)
+export const taskStatusKanbanSort = z.array(changeTaskStatusAttributesFormSchema)

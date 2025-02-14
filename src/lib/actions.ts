@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import { z } from "zod";
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
-import { inlineTaskFormSchema, projectFormSchema, taskFormSchema, changeTaskStatusFormSchema, taskStatusChangeManySchema, taskStatusFormSchema } from './formValidation';
+import { inlineTaskFormSchema, projectFormSchema, taskFormSchema, changeTaskStatusFormSchema, taskStatusChangeManySchema, taskStatusFormSchema, taskStatusKanbanSort } from './formValidation';
 
 const prisma = new PrismaClient();
 
@@ -222,6 +222,9 @@ export async function fetchTasks() {
                 where: {
                     projectId: project.id
                 },
+                orderBy: {
+                    kanbanSort: 'asc'
+                }
             })
             return { success: true, data: tasks}
         }
@@ -495,7 +498,10 @@ export async function fetchAllTaskStatus() {
         const taskStatusEntries = await prisma.taskStatus.findMany({
             where: {
                 projectId: currentProject.id
-            }
+            },
+            // orderBy: {
+            //     kanbanColSort: 'asc'
+            // }
         });
         return { success: true, data: taskStatusEntries };
     }
@@ -605,6 +611,61 @@ export async function changeTaskAttributesKanban(values: z.infer<typeof taskStat
                     });
                     results.push(changedTask);
                 }
+            };
+            return results;
+        })
+        return { success: true, data: changedTasks };
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            console.log(error);
+            return { success: false, message: 'validation error' };
+        };
+        console.log(error);
+        return { success: false, message: 'database error'};
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
+
+export async function changeTaskStatusKanbanSort(values: z.infer<typeof taskStatusKanbanSort>){
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success:false, message: 'Database error, invalid user'};
+    }
+    if (!orgId) {
+        return { success:false, message: 'Error, no organization selected'};
+    }
+    try {
+        const parsedData = taskStatusKanbanSort.parse(values);
+        const currentProject = await prisma.project.findFirst({
+            where: {
+                organization: orgId
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        });
+        if (!currentProject) {
+            return { success: false, message: 'no valid organization used'};
+        };
+        const changedTasks = await prisma.$transaction( async (transaction) => {
+            let results = [];
+            for (const data of parsedData) {
+                if (data.id == -1) continue;
+            
+                const changedTaskStatus = await transaction.taskStatus.update({
+                    where: {
+                        id: data.id,
+                        projectId: currentProject.id
+                    },
+                    data: {
+                        kanbanColSort: data.kanbanColSort
+                    }
+                });
+              results.push(changedTaskStatus);
+              console.log(changedTaskStatus);
             };
             return results;
         })
