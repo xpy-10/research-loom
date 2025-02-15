@@ -156,7 +156,7 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
                     viewTaskDialog: viewTaskDialog,
                     setTaskDialogData: setTaskDialogData,
                     setDeleteTaskDialog: setDeleteTaskDialog,
-                    deleteTaskDialog: deleteTaskDialog
+                    deleteTaskDialog: deleteTaskDialog,
                 }
                 return (
                    <TaskOptions {...props} />

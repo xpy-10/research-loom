@@ -20,11 +20,10 @@ import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import TeamMemberSelector from "./teamMemberSelector";
 
-export default function CreateTaskComponent() {
+export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolean) => void }) {
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
     const pathname = usePathname();
     const { toast } = useToast();
-    const [selectedTeamMemberId, setSelectedTeamMemberId] = useState<string>('');
     const taskForm = useForm<z.infer<typeof taskFormSchema>>({
         resolver: zodResolver(taskFormSchema),
         defaultValues: {
@@ -35,12 +34,13 @@ export default function CreateTaskComponent() {
     const handleCreateTask = async (values: z.infer<typeof taskFormSchema>, pathName: string) => {
         setDialogOpen(false);
         const newTask = await createTask(values, pathName);
-        newTask?.success && newTask.data && toast({
+        newTask.success && newTask.data && toast({
             description: `Successfully created new task with title ${newTask.data.title}`
-        })
-        newTask?.success === false && newTask.message && toast({
+        });
+        newTask.success && onSuccess && onSuccess(true);
+        newTask.success === false && newTask.message && toast({
             description: newTask.message
-        })
+        });
     }
 
     return (

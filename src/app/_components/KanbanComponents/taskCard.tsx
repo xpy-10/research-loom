@@ -3,18 +3,16 @@ import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cva } from "class-variance-authority";
-import { GripVertical, Pencil, Trash2 } from "lucide-react";
+import { GripVertical} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Task } from "@prisma/client";
 import TaskOptions from "../taskComponents/taskOptions";
 import { useState } from "react";
-import EditTaskComponent from "../taskComponents/editTaskComponent";
-import TaskDeleteDialog from "../taskComponents/taskDeleteDialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TaskCardProps {
   task: Task;
   isOverlay?: boolean;
+  onTaskModify: (arg: boolean) => void;
 }
 
 export type TaskType = "Task";
@@ -24,7 +22,7 @@ export interface TaskDragData {
   task: Task;
 }
 
-export function TaskCard({ task, isOverlay }: TaskCardProps) {
+export function TaskCard({ task, isOverlay, onTaskModify }: TaskCardProps) {
   const {setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: {
@@ -45,7 +43,8 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
     viewTaskDialog: viewTaskDialog,
     setTaskDialogData: setTaskDialogData,
     setDeleteTaskDialog: setDeleteTaskDialog,
-    deleteTaskDialog: deleteTaskDialog
+    deleteTaskDialog: deleteTaskDialog,
+    onTaskModify: onTaskModify
   }
   const style = {
     transition,

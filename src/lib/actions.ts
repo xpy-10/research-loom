@@ -228,6 +228,7 @@ export async function fetchTasks() {
             })
             return { success: true, data: tasks}
         }
+        else return { success: false, message: 'no tasks found'}
     }
     catch (error) {
         console.log(error);
@@ -270,7 +271,6 @@ export async function createTask(values: z.infer<typeof taskFormSchema>, pathNam
             }
         })
         revalidatePath(parsedPathName);
-        console.log(newTask);
         return { success: true, data: newTask }
     }
     catch (error) {

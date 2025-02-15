@@ -12,7 +12,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-export default function CreateTaskStatusComponent() {
+export default function CreateTaskStatusComponent({onSuccess}:{onSuccess?: (arg:boolean) => void}) {
     const [dialogOpen, setDialogOpen] = useState(false);
     const pathname = usePathname();
     const { toast } = useToast();
@@ -28,6 +28,7 @@ export default function CreateTaskStatusComponent() {
             newTaskLabel.success && newTaskLabel.data && toast({
                 description: 'New task label successfully created'
             })
+            newTaskLabel.success && onSuccess && onSuccess(true);
             newTaskLabel.success === false && newTaskLabel.message && toast({
                 description: 'Unsuccessful in creating new label'
             })

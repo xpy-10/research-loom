@@ -14,9 +14,8 @@ import { taskStatusChangeManySchema, taskStatusKanbanSort } from "@/lib/formVali
 import { changeTaskAttributesKanban, changeTaskStatusKanbanSort } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 
-export function KanbanBoard({taskStatusLabels, taskList}:{taskStatusLabels:TaskStatus[], taskList:Task[]}) {
+export function KanbanBoard({taskStatusLabels, taskList, onTaskModify}:{taskStatusLabels:TaskStatus[], taskList:Task[], onTaskModify: (arg: boolean) => void}) {
     const uncategorizedColumn = {id: -1, label: 'uncategorized'}
-    taskStatusLabels.map((label) => {console.log(label.id, label.kanbanColSort)})
     const [columns, setColumns] = useState<Column[]>([uncategorizedColumn, ...taskStatusLabels]);
     const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
     const [tasks, setTasks] = useState<Task[]>(taskList);
@@ -27,7 +26,15 @@ export function KanbanBoard({taskStatusLabels, taskList}:{taskStatusLabels:TaskS
 
     useEffect(() => {
         setIsClient(true);
-    }, [])
+    }, []);
+
+    useEffect(() => {
+        setTasks(taskList);
+    }, [taskList]);
+
+    useEffect(() => {
+        setColumns([uncategorizedColumn, ...taskStatusLabels]);
+    }, [taskStatusLabels]);
 
     useEffect(() => {
         if (!isClient) return;
@@ -55,7 +62,6 @@ export function KanbanBoard({taskStatusLabels, taskList}:{taskStatusLabels:TaskS
         if (!isClient) return;
         let updateArray: z.infer<typeof taskStatusKanbanSort> = []
         columns.map((column, index) => {
-          console.log(column, index)
             updateArray.push({id: Number(column.id), kanbanColSort: index})
         });
         changeTaskStatusKanbanSort(updateArray).then((response) => {
@@ -81,7 +87,8 @@ export function KanbanBoard({taskStatusLabels, taskList}:{taskStatusLabels:TaskS
     })
   );
 
-  const returnValue = (isClient? (<DndContext
+  const returnValue = (isClient? (
+  <DndContext
     sensors={sensors}
     onDragStart={onDragStart}
     onDragEnd={onDragEnd}
@@ -94,6 +101,7 @@ export function KanbanBoard({taskStatusLabels, taskList}:{taskStatusLabels:TaskS
             key={col.id}
             column={col}
             tasks={tasks.filter((task) => task.taskStatusId === col.id || !task.taskStatusId && col.id === -1)}
+            onTaskModify={onTaskModify}
           />
         ))}
       </SortableContext>
@@ -109,9 +117,10 @@ export function KanbanBoard({taskStatusLabels, taskList}:{taskStatusLabels:TaskS
               tasks={tasks.filter(
                 (task) => task.taskStatusId === activeColumn.id || !task.taskStatusId && activeColumn.id === -1
               )}
+              onTaskModify={onTaskModify}
             />
           )}
-          {activeTask && <TaskCard task={activeTask} isOverlay />}
+          {activeTask && <TaskCard onTaskModify={onTaskModify} task={activeTask} isOverlay />}
         </DragOverlay>,
         document.body
       )}

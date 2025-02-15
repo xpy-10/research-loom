@@ -1,11 +1,12 @@
-import { Button } from "@/components/ui/button";
+'use client'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { buttonStyleGhost } from "@/lib/utils";
 import { Task } from "@prisma/client";
-import { Folder, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import EditTaskComponent from "./editTaskComponent";
 import TaskDeleteDialog from "./taskDeleteDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useEffect } from "react";
 
 type taskOptionsType = {
     task: Task,
@@ -13,11 +14,14 @@ type taskOptionsType = {
     viewTaskDialog: boolean,
     setTaskDialogData: (arg: Task|undefined) => void,
     setDeleteTaskDialog: (arg: boolean) => void,
-    deleteTaskDialog: boolean
-
-
+    deleteTaskDialog: boolean,
+    onTaskModify?: (arg: boolean) => void
 }
-export default function TaskOptions({task, setViewTaskDialog, viewTaskDialog, setTaskDialogData, setDeleteTaskDialog, deleteTaskDialog}: taskOptionsType) {
+export default function TaskOptions({task, setViewTaskDialog, viewTaskDialog, setTaskDialogData, setDeleteTaskDialog, deleteTaskDialog, onTaskModify}: taskOptionsType) {
+    
+    useEffect(() => {
+        (!viewTaskDialog || !deleteTaskDialog) && onTaskModify && onTaskModify(true);
+    }, [viewTaskDialog, deleteTaskDialog])
 
     return (
         <>
