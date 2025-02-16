@@ -34,6 +34,8 @@ export default async function RootLayout({
   const fetchProjectsResponse = await fetchProjects(3);
   const projectsValidityCheck = fetchProjectsResponse && fetchProjectsResponse.success && fetchProjectsResponse.data && fetchProjectsResponse.data.length >= 1
   const projects = projectsValidityCheck && fetchProjectsResponse.data
+  
+
   return (
     <ClerkProvider
     appearance={{

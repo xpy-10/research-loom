@@ -9,21 +9,22 @@ export default function TaskDeleteDialog({deleteTaskDialog, setDeleteTaskDialog,
     const { toast } = useToast();
     const pathname = usePathname();
     
-    const handleMenuDelete = async (selectedTask: Task|undefined) => {
+    const handleMenuDelete = (selectedTask: Task|undefined) => {
         setDeleteTaskDialog(false);
         if (!selectedTask) { return }
-        try {
-            const deletedTask = await deleteTask({id: selectedTask.id}, pathname);
-            deletedTask?.success && deletedTask.data && toast({
-                description: 'successfully deleted task'
-            })
-            deletedTask?.success === false && deletedTask.message && toast({
-                description: deletedTask.message
-            })
-        }
-        catch (error) {
+        deleteTask({id: selectedTask.id}, pathname).then((response) => {
+            response.success && response.data && toast({
+                description: 'Successfully deleted task'
+            });
+            !response.success && response.message && toast({
+                description: response.message
+            });
+        }).catch((error) => {
             console.log(error);
-        }
+            toast({
+                description: 'Client: Error deleting task'
+            })
+        });
     }
 
     return (

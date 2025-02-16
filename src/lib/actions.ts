@@ -121,6 +121,9 @@ export async function deleteProject(projectId: number, pathName: string) {
             revalidatePath(parsedPathName);
             return { success: true, data: deletedProject };
         }
+        else {
+            return { success: false, message: 'deletion may have encountered error. Your credentials and permissions may have been the issue'}
+        }
     }
     catch(error) {
         if (error instanceof z.ZodError) {
@@ -161,6 +164,9 @@ export async function editProject(values: z.infer<typeof projectFormSchema>, pat
             })
             revalidatePath(parsedPathName);
             return { success: true, data: editedProject };
+        }
+        else {
+            return { success: false, message: 'error in database editing project'}
         }
     }
     catch(error) {

@@ -25,23 +25,35 @@ export default function ProjectsDialogs({project, setSelection, selection}: {pro
     })
     const handleMenuDelete = async (selectedProject: typeof project) => {
         setSelection('delete');
-        const deletedProject = await deleteProject(selectedProject.id, pathname)
-        deletedProject?.success && deletedProject.data && toast({
-                description: `Your project ${deletedProject.data.name} has been successfully deleted`
-            })
-        deletedProject?.success === false && deletedProject.message && toast({
-                description: deletedProject.message
-            })
+        deleteProject(selectedProject.id, pathname).then((response) => {
+            response.success && response.data && toast({
+                description: `Your project ${response.data.name} has been successfully deleted`
+            });
+            !response.success && response.message && toast({
+                description: response.message
+            });
+        }).catch((error) => {
+            console.log(error);
+            toast({
+                description: 'Client: Deletion of project encountered error'
+            });
+        })
     }
 
-    const handleEditSubmit = async (values: z.infer<typeof projectFormSchema>, pathName: string) => {
+    const handleEditSubmit = (values: z.infer<typeof projectFormSchema>, pathName: string) => {
         setSelection(undefined);
-        const editedProject = await editProject(values, pathName);
-        editedProject?.success && editedProject.data && toast({
-            description: `Successfully changed project attributes`
-        })
-        editedProject?.success === false && editedProject.message && toast({
-            description: editedProject.message
+        editProject(values, pathName).then((response) => {
+            response.success && response.data && toast({
+                description: 'Successfully changed project attributes'
+            });
+            !response.success && response.message && toast({
+                description: response.message
+            });
+        }).catch((error) => {
+            console.log(error);
+            toast({
+                description: 'Client: Unable to edit project'
+            })
         })
     }
     return (

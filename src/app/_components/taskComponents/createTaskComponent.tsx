@@ -31,16 +31,17 @@ export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolea
             description: "",
         }
     })
-    const handleCreateTask = async (values: z.infer<typeof taskFormSchema>, pathName: string) => {
+    const handleCreateTask = (values: z.infer<typeof taskFormSchema>, pathName: string) => {
         setDialogOpen(false);
-        const newTask = await createTask(values, pathName);
-        newTask.success && newTask.data && toast({
-            description: `Successfully created new task with title ${newTask.data.title}`
-        });
-        newTask.success && onSuccess && onSuccess(true);
-        newTask.success === false && newTask.message && toast({
-            description: newTask.message
-        });
+        createTask(values, pathName).then((response) => {
+            response.success && response.data && toast({
+                description: `Successfully created new task with title ${response.data.title}`
+            });
+            response.success && onSuccess && onSuccess(true);
+            !response.success && response.message && toast({
+                description: response.message
+            });
+        })
     }
 
     return (

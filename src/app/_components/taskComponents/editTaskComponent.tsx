@@ -40,14 +40,20 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
             }
         })
 
-    const handleSubmit = async (values: z.infer<typeof taskFormSchema>, pathName: string) => {
+    const handleSubmit = (values: z.infer<typeof taskFormSchema>, pathName: string) => {
         setDialogOpen(false);
-        const updatedTask = await updateTask(values, pathName);
-        updatedTask?.success && updatedTask.data && toast({
-            description: `Successfully updated task with title ${updatedTask.data.title}`
-        })
-        updatedTask?.success === false && updatedTask.message && toast({
-            description: updatedTask.message
+        updateTask(values, pathName).then((response) => {
+            response.success && response.data && toast({
+                description: `Successfully updated task with title ${response.data.title}`
+            });
+            !response.success && response.message && toast({
+                description: response.message
+            });
+        }).catch((error) => {
+            console.log(error);
+            toast({
+                description: `Client: Error updating task with title ${values.title}`
+            })
         })
     }
 

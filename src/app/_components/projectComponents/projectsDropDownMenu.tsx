@@ -12,12 +12,18 @@ export default function ProjectsDropDownMenu({project}: {project: createProjectT
     const { toast } = useToast();
     const [selection, setSelection] = useState<string|undefined>(undefined);
     
-    const handleMenuSelection = async (selectedProject: typeof project) => {
-        const returnedProject = await useProject(selectedProject.id);
-        console.log(returnedProject.data);
-        toast({
-            description: `Your project ${selectedProject.name} has been selected`
+    const handleMenuSelection = (selectedProject: typeof project) => {
+        useProject(selectedProject.id).then((response) => {
+            response.success && response.data && toast({
+                description: `Your project ${response.data.name} has been selected`
+            });
+        }).catch((error) => {
+            console.log(error);
+            toast({
+                description: `Client: Error in selecting your project ${selectedProject.name}`
+            });
         })
+
     }
  
 

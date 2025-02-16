@@ -14,20 +14,21 @@ export default function CalendarDueDateSelector({task}:{task:Task}) {
     const [pickedDate, setPickedDate] = useState<Date|undefined>(task.due_date?task.due_date:undefined);
     const pathname = usePathname();
     const { toast } = useToast();
-    const handleChangeDate = async (value:Date|undefined) => {
+    const handleChangeDate = (value:Date|undefined) => {
         setPickedDate(value);
-        try {
-            const updatedTask = await updateTaskInline({id: task.id, dueDate: value}, pathname);
-            updatedTask?.success && updatedTask.data && toast({
-                description: `Successfully updated task's due date`
-            })
-            updatedTask?.success === false && updatedTask?.message && toast({
-                description: 'Error updating the task'
-            })
-        }
-        catch (error) {
+        updateTaskInline({id: task.id, dueDate: value}, pathname).then((response) => {
+            response.success && response.data && toast({
+                description: "Successfully updated task's due date"
+            });
+            !response.success && response.message && toast({
+                description: response.message
+            });
+        }).catch((error) => {
             console.log(error);
-        }
+            toast({
+                description: 'Client: Error updating the task'
+            })
+        })
 
     }
     return (

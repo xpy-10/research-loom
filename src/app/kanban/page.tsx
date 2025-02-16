@@ -5,21 +5,41 @@ import { KanbanBoard } from "../_components/KanbanComponents/kanbanBoard";
 import CreateTaskComponent from "../_components/taskComponents/createTaskComponent";
 import { useCallback, useEffect, useState } from "react";
 import { Task, TaskStatus } from "@prisma/client";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Kanban() {
     const [taskStatusLabels, setTaskStatusLabels] = useState<TaskStatus[]>();
     const [taskList, setTaskList] = useState<Task[]>();
     const [shouldRefreshLabels, setShouldRefreshLabels] = useState(false);
     const [shouldRefreshTasks, setShouldRefreshTasks] = useState(false);
+    const { toast } = useToast();
 
-    const refreshLabels = useCallback( async () => {
-        const newLabels = await fetchAllTaskStatus();
-        newLabels.success && newLabels.data && setTaskStatusLabels(newLabels.data);
+    const refreshLabels = useCallback(() => {
+        fetchAllTaskStatus().then((response) => {
+            response.success && response.data && setTaskStatusLabels(response.data);
+            !response.success && response.message && toast({
+                description: 'Unable to refresh task status list'
+            });
+        }).catch((error) => {
+            console.log(error);
+            toast({
+                description: 'Client: Error fetching updated task status list'
+            })
+        })
     }, []);
 
-    const refreshTasks = useCallback( async() => {
-        const newTasks = await fetchTasks();
-        newTasks.success && newTasks.data && setTaskList(newTasks.data);
+    const refreshTasks = useCallback(() => {
+        fetchTasks().then((response) => {
+            response.success && response.data && setTaskList(response.data);
+            !response.success && response.message && toast({
+                description: 'Unable to refresh tasks'
+            });
+        }).catch((error) => {
+            console.log(error);
+            toast({
+                description: 'Client: Error fetching updated tasks'
+            })
+        })
     }, []);
 
     useEffect(() => {

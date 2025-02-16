@@ -22,23 +22,21 @@ export default function CreateTaskStatusComponent({onSuccess}:{onSuccess?: (arg:
             label: ''
         }
     })
-    const handleCreateSubmit = async (values: z.infer<typeof taskStatusFormSchema>, pathName: string) => {
-        try {
-            const newTaskLabel = await createTaskStatus(values, pathName);
-            newTaskLabel.success && newTaskLabel.data && toast({
+    const handleCreateSubmit = (values: z.infer<typeof taskStatusFormSchema>, pathName: string) => {
+        createTaskStatus(values, pathName).then((response) => {
+            response.success && response.data && toast({
                 description: 'New task label successfully created'
-            })
-            newTaskLabel.success && onSuccess && onSuccess(true);
-            newTaskLabel.success === false && newTaskLabel.message && toast({
-                description: 'Unsuccessful in creating new label'
-            })
-        }
-        catch (error) {
+            });
+            response.success && onSuccess && onSuccess(true);
+            !response.success && response.message && toast({
+                description: response.message
+            });
+        }).catch((error) => {
             console.log(error);
             toast({
-                description: 'Unable to create new label'
+                description: 'Client: Error creating task label'
             });
-        }
+        });
     }
 
     return (

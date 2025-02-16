@@ -29,13 +29,20 @@ export default function CreateProject() {
     })
 
     async function onSubmit(values: z.infer<typeof projectFormSchema>) {
-        const returnedProject = await createProject(values, path);
-        setValue(returnedProject);
-        toast({
-            title: `${returnedProject.success?'Successful':'Unsuccessful'}`,
-            description: `${returnedProject.success?returnedProject.data && returnedProject.data.name + ' has been created':
-                returnedProject.message
+        createProject(values, path).then((response) => {
+            response.success && response.data && setValue(response);
+            response.success && response.data && toast({
+                description: `${response.data.name + ' has been created'
             }`
+            });
+            !response.success && response.message && toast({
+                description: response.message
+            })
+        }).catch((error) => {
+            console.log(error);
+            toast({
+                description: 'Client: Error in creating project'
+            })
         })
     }
 
