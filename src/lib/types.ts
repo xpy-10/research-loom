@@ -1,6 +1,4 @@
 import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
-import {Model} from 'json-joy/lib/json-crdt';
-import { Task, TaskStatus } from '@prisma/client'
 
 const model = ModelWithExt.create(ext.quill.new(''));
 const modelBinary = model.api.flush().toBinary();
@@ -22,5 +20,9 @@ export type projectType_db = {
     message?: string;
 }
 
+export type documentListItemType = {
+    id: number,
+    title: string
+}
 
 

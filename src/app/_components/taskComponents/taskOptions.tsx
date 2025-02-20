@@ -6,22 +6,18 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import EditTaskComponent from "./editTaskComponent";
 import TaskDeleteDialog from "./taskDeleteDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type taskOptionsType = {
     task: Task,
-    setViewTaskDialog: (arg: boolean) => void,
-    viewTaskDialog: boolean,
-    setTaskDialogData: (arg: Task|undefined) => void,
-    setDeleteTaskDialog: (arg: boolean) => void,
-    deleteTaskDialog: boolean,
     onTaskModify?: (arg: boolean) => void
 }
-export default function TaskOptions({task, setViewTaskDialog, viewTaskDialog, setTaskDialogData, setDeleteTaskDialog, deleteTaskDialog, onTaskModify}: taskOptionsType) {
-    
+export default function TaskOptions({task, onTaskModify}: taskOptionsType) {
+    const [viewTaskDialog, setViewTaskDialog] = useState(false);
+    const [deleteTaskDialog, setDeleteTaskDialog] = useState(false);
     useEffect(() => {
         (!viewTaskDialog || !deleteTaskDialog) && onTaskModify && onTaskModify(true);
-    }, [viewTaskDialog, deleteTaskDialog])
+    }, [viewTaskDialog, deleteTaskDialog]);
 
     return (
         <>
@@ -43,17 +39,17 @@ export default function TaskOptions({task, setViewTaskDialog, viewTaskDialog, se
         </TooltipProvider>
         <DropdownMenuContent align="end">
             <DropdownMenuLabel>Menu</DropdownMenuLabel>
-            <DropdownMenuItem className="cursor-pointer" onClick={() => {setViewTaskDialog(true); setTaskDialogData(task)}}>
+            <DropdownMenuItem className="cursor-pointer" onClick={() => {setViewTaskDialog(true)}}>
                 <Pencil className="text-neutral-500 dark:text-neutral-400" />
                 <span>View/Edit Task</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer" onClick={() => {setDeleteTaskDialog(true); setTaskDialogData(task)}}>
+            <DropdownMenuItem className="cursor-pointer" onClick={() => {setDeleteTaskDialog(true)}}>
                 <Trash2 className="text-neutral-500 dark:text-neutral-400" />
                 <span>Delete Task</span>
             </DropdownMenuItem>
         </DropdownMenuContent>
         </DropdownMenu>
-        <EditTaskComponent dialogOpen={viewTaskDialog} setDialogOpen={setViewTaskDialog} currentTask={task} setCurrentTask={setTaskDialogData}/>
+        <EditTaskComponent dialogOpen={viewTaskDialog} setDialogOpen={setViewTaskDialog} currentTask={task}/>
         <TaskDeleteDialog deleteTaskDialog={deleteTaskDialog} setDeleteTaskDialog={setDeleteTaskDialog} currentTask={task} />
         </>
     )

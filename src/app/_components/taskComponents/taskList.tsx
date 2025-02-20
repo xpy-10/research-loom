@@ -4,7 +4,6 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PriorityTag, Task, TaskStatus } from "@prisma/client"
-import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
 import { useState } from "react";
@@ -27,23 +26,6 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
     const [taskDialogData, setTaskDialogData] = useState<Task|undefined>(undefined);
     
     const columns: ColumnDef<Task >[] = [
-        {
-            id: 'select',
-            header: ({ table }) => (
-                <Checkbox checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all" 
-                />
-            ),
-            cell: ({ row }) => (
-                <Checkbox checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-                />
-            ),
-            enableSorting: false,
-            enableHiding: false,
-        },
         {
             accessorKey: 'description',
             header: ({ column }) => {
@@ -152,18 +134,18 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
                 const task = row.original;
                 const props = {
                     task: task,
-                    setViewTaskDialog: setViewTaskDialog,
-                    viewTaskDialog: viewTaskDialog,
-                    setTaskDialogData: setTaskDialogData,
-                    setDeleteTaskDialog: setDeleteTaskDialog,
-                    deleteTaskDialog: deleteTaskDialog,
+                    // setViewTaskDialog: setViewTaskDialog,
+                    // viewTaskDialog: viewTaskDialog,
+                    // setTaskDialogData: setTaskDialogData,
+                    // setDeleteTaskDialog: setDeleteTaskDialog,
+                    // deleteTaskDialog: deleteTaskDialog,
                 }
                 return (
                    <TaskOptions {...props} />
                 )
             }
         }
-    ]
+    ];
     const table = useReactTable({
         data,
         columns,
@@ -181,7 +163,7 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
             columnVisibility,
             rowSelection
         }
-    })
+    });
     return (
         <>
         <div className="w-full">

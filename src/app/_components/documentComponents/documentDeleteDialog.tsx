@@ -1,20 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { deleteTask } from "@/lib/actions";
-import { Task } from "@prisma/client";
+import { deleteDocument } from "@/lib/actions";
+import { documentListItemType } from "@/lib/types";
 import { usePathname } from "next/navigation";
 
-export default function TaskDeleteDialog({deleteTaskDialog, setDeleteTaskDialog, currentTask}:{deleteTaskDialog:boolean, setDeleteTaskDialog: (arg:boolean) => void, currentTask: Task|undefined}) {
+export default function DocumentDeleteDialog({deleteDocDialog, setDeleteDocDialog, document}:{deleteDocDialog:boolean, setDeleteDocDialog: (arg:boolean) => void, document: documentListItemType}) {
     const { toast } = useToast();
     const pathname = usePathname();
-    
-    const handleMenuDelete = (selectedTask: Task|undefined) => {
-        setDeleteTaskDialog(false);
-        if (!selectedTask) { return };
-        deleteTask({id: selectedTask.id}, pathname).then((response) => {
+    const handleMenuDelete = (document: documentListItemType|undefined) => {
+        setDeleteDocDialog(false);
+        if (!document) { return };
+        console.log(document)
+        deleteDocument(document, pathname).then((response) => {
             response.success && response.data && toast({
-                description: 'Successfully deleted task'
+                description: 'Successfully deleted document'
             });
             !response.success && response.message && toast({
                 description: response.message
@@ -22,24 +22,24 @@ export default function TaskDeleteDialog({deleteTaskDialog, setDeleteTaskDialog,
         }).catch((error) => {
             console.log(error);
             toast({
-                description: 'Client: Error deleting task'
+                description: 'Client: Error deleting document'
             })
         });
-    }
 
+    }
     return (
         <>
-        <Dialog open={deleteTaskDialog} onOpenChange={() => setDeleteTaskDialog(false)}>
+        <Dialog open={deleteDocDialog} onOpenChange={() => setDeleteDocDialog(false)}>
         <DialogContent>
         <DialogHeader>
         <DialogTitle>Are you absolutely sure?</DialogTitle>
         <DialogDescription>
             This action cannot be undone. Are you sure you want to permanently
-            delete this task from our servers?
+            delete this document {document && document.title} from our servers?
         </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-        <Button onClick={() => handleMenuDelete(currentTask)}>Confirm</Button>
+        <Button onClick={() => handleMenuDelete(document)}>Confirm</Button>
         </DialogFooter>
         </DialogContent>
         </Dialog>

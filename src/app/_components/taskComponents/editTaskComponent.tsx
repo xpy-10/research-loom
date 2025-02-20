@@ -21,8 +21,7 @@ import TeamMemberSelector from "./teamMemberSelector";
 import TaskPrioritySelector from "./taskPrioritySelector";
 
 
-export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTask, setCurrentTask}: {dialogOpen: boolean, setDialogOpen: (arg:boolean) => void, currentTask: Task|undefined, setCurrentTask: (arg:Task|undefined) => void}) {
-    
+export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTask}: {dialogOpen: boolean, setDialogOpen: (arg:boolean) => void, currentTask: Task|undefined}) {
     if (!currentTask){
         return (<></>)
     }
@@ -59,7 +58,7 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
 
     return (
         <>
-        <Dialog open={dialogOpen===true} onOpenChange={() => {setDialogOpen(false); setCurrentTask(undefined)}}>
+        <Dialog open={dialogOpen===true} onOpenChange={() => {setDialogOpen(false)}}>
             <DialogContent>
             <DialogHeader>
             <DialogDescription>

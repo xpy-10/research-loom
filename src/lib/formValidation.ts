@@ -62,3 +62,16 @@ export const changeTaskStatusAttributesFormSchema = z.object({
 })
 
 export const taskStatusKanbanSort = z.array(changeTaskStatusAttributesFormSchema)
+
+export const documentCreationForm = z.object({
+    title: z.string().max(100, {
+        message: "Maximum of 100 characters allowed"
+    }).min(1, {
+        message: "Minimum of 1 character needed for title"
+    })
+})
+
+export const documentDeleteForm = z.object({
+    id: z.number(),
+    title: z.string()
+})
