@@ -4,15 +4,10 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuLabel,
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { documentListItemType } from "@/lib/types"
 import { buttonStyleGhost } from "@/lib/utils";
-
+import { useRouter } from "next/navigation";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import QuillWriter from "./quillWriter";
 import DocumentDeleteDialog from "./documentDeleteDialog";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { usePathname } from "next/navigation";
 
 type documentOptionsType = {
     document: documentListItemType,
@@ -27,6 +22,14 @@ type documentOptionsType = {
 export default function DocumentOptions({document}: {document: documentListItemType}) {
     const [deleteDocDialog, setDeleteDocDialog] = useState(false);
     const [viewDocDialog, setViewDocDialog] = useState(false);
+    const router = useRouter();
+    useEffect(() => {
+        if (!viewDocDialog) return;
+        if (viewDocDialog) {
+            router.push(`/document/${document.id}`);
+            window.location.reload();
+        }
+    }, [viewDocDialog]);
 
     return (
         <>

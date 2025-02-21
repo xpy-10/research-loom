@@ -10,7 +10,7 @@ const data = {
   navMain: [
     {
       title: "Task Management",
-      url: "#",
+      url: "",
       icon: SquareTerminal,
       isActive: true,
       items: [
@@ -24,49 +24,49 @@ const data = {
         },
         {
           title: "Gantt Chart",
-          url: "#",
+          url: "",
         }
       ],
     },
 
     {
       title: "Documents",
-      url: "#",
+      url: "",
       icon: BookOpen,
       items: [
         {
           title: "Current Documents",
-          url: "#",
+          url: "document",
         },
         {
           title: "Create New",
-          url: "#",
+          url: "document",
         },
       ],
     },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: Settings2,
+    //   items: [
+    //     {
+    //       title: "General",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Team",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Billing",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Limits",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
   ],
 }
 

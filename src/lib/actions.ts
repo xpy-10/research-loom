@@ -100,7 +100,8 @@ export async function fetchDocuments(limit?: number) {
                 }
             })
             return { success: true, data: documents };
-        }
+        };
+        return { success: false, message: 'Database error: no document found' };
     }
     catch (error) {
         console.log(error);
@@ -110,6 +111,45 @@ export async function fetchDocuments(limit?: number) {
         await prisma. $disconnect();
     };
 };
+
+export async function fetchDocument(docId: number) {
+    const { userId, orgId } = await auth();
+    if (!userId) {
+        return { success: false, message: 'Database error, invalid user' }
+    }
+    if (!orgId) {
+        return { success: false, message: 'Error, no organization selected' }
+    }
+    try {
+        const validatedId = z.number().parse(docId);
+        const project = await prisma.project.findFirst({
+            where: {
+                organization: orgId as string
+            },
+            orderBy: {
+                lastUsed: 'desc'
+            }
+        });
+        if (project) {
+            const document = await prisma.document.findFirst({
+                where: {
+                    projectId: project.id,
+                    id: validatedId
+                }
+            })
+            return { success: true, data: document };
+        }
+        return { success: false, message: 'Database error: no document found' };
+    }
+    catch (error) {
+        console.log(error);
+        return { success: false, message: 'Database error: failed to fetch documents'}
+    }
+    finally {
+        await prisma. $disconnect();
+    };
+};
+
 
 export async function deleteDocument(values: z.infer<typeof documentDeleteForm>, pathName: string) {
     console.log(values)

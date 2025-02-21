@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useQuill } from 'react-quilljs';
 import { QuillBinding } from 'collaborative-quill' 
 import 'quill/dist/quill.snow.css';
-import { retrieveDocument } from '@/lib/actions';
 import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
 import {s} from 'json-joy/lib/json-crdt-patch'
 import { useWebSocket } from 'next-ws/client';
@@ -12,6 +11,7 @@ import Delta from 'quill-delta';
 import QuillCursors from 'quill-cursors';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
+import { Document } from '@prisma/client';
 const CURSOR_LATENCY = 1000;
 const QUILL_LATENCY = 1000;
 
@@ -60,27 +60,26 @@ let documentBin: Uint8Array;
 let api = () => model.s.document.text.toExt()
 
 
-export default function QuillWriter() {
-
+export default function QuillWriter({data}:{data:Document|undefined}) {
     const theme = 'snow';
     const modules = {
         toolbar: [
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ align: [] }],
-      
-          [{ list: 'ordered'}, { list: 'bullet' }],
-          [{ indent: '-1'}, { indent: '+1' }],
-      
-          [{ size: ['small', false, 'large', 'huge'] }],
-          [{ header: [1, 2, 3, 4, 5, 6, false] }],
-          ['link', 'image', 'video'],
-          [{ color: [] }, { background: [] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ align: [] }],
+            
+            [{ list: 'ordered'}, { list: 'bullet' }],
+            [{ indent: '-1'}, { indent: '+1' }],
+            
+            [{ size: ['small', false, 'large', 'huge'] }],
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            ['link', 'image', 'video'],
+            [{ color: [] }, { background: [] }],
         ],
         clipboard: {
-          matchVisual: false,
+            matchVisual: false,
         },
         cursors: { transformOnTextChange: true}
-      };
+    };
     const placeholder = 'start your document';
     const formats = [
         'bold', 'italic', 'underline', 'strike',
@@ -88,8 +87,9 @@ export default function QuillWriter() {
         'size', 'header',
         'link', 'image', 'video',
         'color', 'background',
-      ]
-
+    ]
+    
+    const [title, setTitle] = useState<string|undefined>(undefined);
     const [shouldUpdate, setShouldUpdate] = useState(false);
     const [currentAwareness, setCurrentAwareness] = useState<{shouldUpdate: boolean, range: rangeType|undefined, debounced: boolean}>({shouldUpdate: false, range: undefined, debounced:false})
     const [remoteAwareness, setRemoteAwareness] = useState<userType[]>([]);
@@ -99,6 +99,16 @@ export default function QuillWriter() {
     const [remoteCursorMap, setRemoteCursorMap] = useState(new Map())
     const ws = useWebSocket();
 
+    useEffect(() => {
+        if (ws && user && data) {
+            const connectionMessage = {
+                type: 'connection',
+                clientId: user.id,
+                documentId: data.id
+            };
+            ws?.send(JSON.stringify(connectionMessage))
+        }
+    }, [ws, data, user])
 
     if (Quill && !quill) {
         Quill.register('modules/cursors', QuillCursors);
@@ -108,16 +118,16 @@ export default function QuillWriter() {
 
     if (quill && editor) {
         cursorModule = editor.getModule('cursors')
-    }
+    };
 
     useEffect(() => {
-        const getDocument = async () => {
-            documentBin = await (retrieveDocument())
+        if (!data) return;
+        if (data) {
+            setTitle(data.title);
+            documentBin = data.contents
             model = ModelWithExt.load(documentBin, undefined, schema);
         }
-        getDocument();
-        
-    }, [])
+    }, [data]);
 
     useEffect(() => {
         if (user && ws && quill) {
@@ -134,7 +144,7 @@ export default function QuillWriter() {
             ws?.send(jsonMessage)
         }
 
-    }, [ws, user])
+    }, [ws, user]);
 
     useEffect(() => {
         let unbind: ()=> void;
@@ -221,6 +231,11 @@ export default function QuillWriter() {
                                 const tempawareness = Object.keys(awareness).map(key=> awareness[key] as userType);
                                 setRemoteAwareness(tempawareness);
                             }
+                            if (json['type'] && json['type'] === 'ping' && user && data) {
+                                const pongResponse = {type: 'pong', clientId: user.id, documentId: data.id};
+                                console.log('pong response given')
+                                ws?.send(JSON.stringify(pongResponse));
+                            }
                         }
                         catch (error) {
                             console.warn('Error processing blob: ', error);
@@ -280,6 +295,7 @@ export default function QuillWriter() {
             <div>
             </div>
             <div style={{ width: 500, height: 300 }}>
+            <div>Title: {title}</div>
             <div ref={quillRef} />
             </div>
         </div>
