@@ -1,4 +1,5 @@
 import QuillWriter from "@/app/_components/documentComponents/quillWriter";
+import SocketConnector from "@/app/_components/documentComponents/socketConnector";
 import { fetchDocument } from "@/lib/actions";
 import { Document } from "@prisma/client";
 import { WebSocketProvider } from 'next-ws/client';
@@ -9,8 +10,10 @@ export default async function ViewDoc({params}: {params:{docId:string}}) {
     const data: Document|undefined = document.success && document.data? document.data : undefined
     return (
         <>
-        You have navigated to document page {docId}
-        {data && <QuillWriter data={data} />}
+        <SocketConnector url={`ws://localhost:3000/api/websockets/${docId}`}>
+            You have navigated to document page {docId}
+            {data && <QuillWriter data={data} />}
+        </SocketConnector>
         </>
     )
 }
