@@ -15,41 +15,7 @@ import { Document } from '@prisma/client';
 import { awarenessConsumerType, connectionMessageType, rangeType, userAwarenessType } from '@/lib/types';
 const CURSOR_LATENCY = 1000;
 const QUILL_LATENCY = 1000;
-
-const stringToColour = (str:string): string => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        hash = (hash << 5) - hash + str.charCodeAt(i);
-        hash = hash & hash; 
-    }
-    hash = Math.abs(hash);
-
-    const returnedColour = '#'+((1<<24) + (hash & 0xFFFFFF)).toString(16).slice(1);
-
-    return returnedColour
-}
-
-// type rangeType = {
-//     index: number,
-//     length: number
-// }
-
-// interface userType {
-//     userName: string,
-//     userId: string,
-//     userImageUrl: string,
-//     cursor: rangeType | "undefined"
-// }
-
-// type awarenessConsumerType = {
-//     [key: string]: userType;
-// }
-
-// type awarenessType = {
-//     type: string,
-//     payload: userType
-// }
-
+import { stringToColour } from '@/lib/utils';
 
 const schema = s.obj({
     document: s.obj({
@@ -109,7 +75,6 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
                 documentId: data.id
             };
             try{
-                console.log(connectionMessage)
                 ws?.send(JSON.stringify(connectionMessage))
             }
             catch (error) {

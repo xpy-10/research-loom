@@ -14,6 +14,8 @@ export const buttonStyleGhost = "cursor-pointer inline-flex items-center justify
 
 type DraggableData = ColumnDragData | TaskDragData;
 
+// util hasDraggableaData from react-dnd-kit-tailwind-shadcn-ui
+// https://github.com/Georgegriff/react-dnd-kit-tailwind-shadcn-ui
 export function hasDraggableData<T extends Active | Over>(
   entry: T | null | undefined
 ): entry is T & {
@@ -30,4 +32,18 @@ export function hasDraggableData<T extends Active | Over>(
   }
 
   return false;
+}
+
+// util function stringToColour with assistance from ChatGPT
+export const stringToColour = (str:string): string => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash = hash & hash; 
+    }
+    hash = Math.abs(hash);
+
+    const returnedColour = '#'+((1<<24) + (hash & 0xFFFFFF)).toString(16).slice(1);
+
+    return returnedColour
 }

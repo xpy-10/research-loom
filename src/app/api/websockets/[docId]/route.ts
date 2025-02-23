@@ -2,6 +2,19 @@ import { connectionMessageType } from '@/lib/types';
 import 'server-only';
 import { z } from "zod";
 
+const awarenessSchema = z.object({
+    userName: z.string().or(z.literal('anon')),
+    userId: z.string().or(z.literal('anon')),
+    userImageUrl: z.string().url().or(z.literal('anon')),
+    cursor: z.literal('undefined').or(z.object({
+        index: z.number(),
+        length: z.number()
+    }))
+})
+
+type awarenessType = z.infer<typeof awarenessSchema>;
+type awarenessMapType = Map<string, awarenessType>;
+const AwarenessDocRooms = new Map<string, awarenessMapType>();
 const clientDocRooms = new Map<(import('ws').WebSocket), {docId: string}>();
 
 export function GET() {
@@ -61,7 +74,7 @@ async function createHelpers( client: import('ws').WebSocket, server: import('ws
                     console.log('awareness sent')
                     const documentId = jsonMessage.documentId;
                     const clientId = jsonMessage.clientId;
-                    const userMap = createUserMap(jsonMessage.payload);
+                    const userMap = createUserMap(jsonMessage.payload, String(documentId));
                     const allAwareness = { type: 'awareness', awarenessMap : JSON.stringify(Object.fromEntries(userMap))}
                     const jsonMap = JSON.stringify(allAwareness);
                     const buffer = Buffer.from(jsonMap);
@@ -83,20 +96,14 @@ async function createHelpers( client: import('ws').WebSocket, server: import('ws
     return { handleMessage };
 }
 
-const awarenessMap = new Map();
-
-const createUserMap = (userAwareness: {}) => {
-    const awarenessSchema = z.object({
-        userName: z.string().or(z.literal('anon')),
-        userId: z.string().or(z.literal('anon')),
-        userImageUrl: z.string().url().or(z.literal('anon')),
-        cursor: z.literal('undefined').or(z.object({
-            index: z.number(),
-            length: z.number()
-        }))
-    })
-    const awarenessObject = awarenessSchema.parse(userAwareness)
+const createUserMap = (userAwareness: {}, docId: string) => {
+    let awarenessMap = AwarenessDocRooms.get(docId);
+    if (!awarenessMap) {
+        awarenessMap = new Map<string, awarenessType>();
+    }
+    const awarenessObject = awarenessSchema.parse(userAwareness);
     awarenessMap.set(awarenessObject.userId, awarenessObject);
+    AwarenessDocRooms.set(docId, awarenessMap);
     return awarenessMap;
 }
 
