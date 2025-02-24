@@ -13,10 +13,15 @@ import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { Document } from '@prisma/client';
 import { awarenessConsumerType, connectionMessageType, rangeType, userAwarenessType } from '@/lib/types';
-const CURSOR_LATENCY = 1000;
-const QUILL_LATENCY = 1000;
 import { stringToColour } from '@/lib/utils';
 import './quillWriterStyles.css';
+import { syncDoc } from '@/lib/actions';
+import { docSyncValidation } from '@/lib/formValidation';
+import { z } from 'zod';
+import { useToast } from '@/hooks/use-toast';
+const CURSOR_LATENCY = 1000;
+const QUILL_LATENCY = 1000;
+const SYNC_INTERVAL = 10000;
 
 const schema = s.obj({
     document: s.obj({
@@ -59,12 +64,14 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
     
     const [title, setTitle] = useState<string|undefined>(undefined);
     const [shouldUpdate, setShouldUpdate] = useState(false);
+    const [shouldSyncDoc, setShouldSyncDoc] = useState(false);
     const [currentAwareness, setCurrentAwareness] = useState<{shouldUpdate: boolean, range: rangeType|undefined, debounced: boolean}>({shouldUpdate: false, range: undefined, debounced:false})
     const [remoteAwareness, setRemoteAwareness] = useState<userAwarenessType[]>([]);
     const [remoteUpdate, setRemoteUpdate] = useState<Delta|undefined>(undefined);
     const { quill, quillRef, Quill, editor } = useQuill({ theme, modules, formats, placeholder});
     const { isLoaded, isSignedIn, user} = useUser();
-    const [remoteCursorMap, setRemoteCursorMap] = useState(new Map())
+    const [remoteCursorMap, setRemoteCursorMap] = useState(new Map());
+    const { toast } = useToast();
     const ws = useWebSocket();
     let cursorModule: any
 
@@ -133,6 +140,7 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
             quill.on('text-change', (delta, oldDelta, source) => {
                 if (source === 'user') {
                     setShouldUpdate(true);
+                    setShouldSyncDoc(true);
                 }
             quill.on('selection-change', (range, oldRange, source) => {
                 if (source === 'user') {
@@ -183,11 +191,15 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
         }
     }, [currentAwareness, data, ws, quill])
 
-    useEffect(() => {
+    useEffect(() => { 
         if (!shouldUpdate || !user || !data) return;
-        const timeoutId = setTimeout(() => {
+        const patchTimeoutId = setTimeout(() => {
             const patch = model.api.flush()
-            const message = { type: 'quill_update', payload: { quill_update: patch.toBinary()}, clientId: user.id, documentId: data.id}
+            const message: connectionMessageType = { 
+                type: 'quill_update', 
+                payload: { quill_update: patch.toBinary()}, 
+                clientId: user.id, 
+                documentId: data.id}
             try {
                 ws?.send(JSON.stringify(message));
                 setShouldUpdate(false);
@@ -198,9 +210,38 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
         }, QUILL_LATENCY);
     
         return () => {
-            clearTimeout(timeoutId);
+            clearTimeout(patchTimeoutId);
         };
     }, [shouldUpdate, user, data]); 
+
+    useEffect(() => {
+        if (!shouldSyncDoc || !user || !data) return;
+        const docTimeoutId = setTimeout(async () => {
+            const message: z.infer<typeof docSyncValidation> = { 
+                type: 'quill_doc', 
+                payload: { quill_update: model.toBinary()}, 
+                clientId: user.id, 
+                documentId: data.id 
+            }
+            try {
+                const updatedDoc = await syncDoc(message);
+                updatedDoc.success && updatedDoc.data && toast({
+                    description: 'Synced document'
+                });
+                !updatedDoc.success && updatedDoc.message && toast({
+                    description: updatedDoc.message
+                });
+                setShouldSyncDoc(false);
+            }
+            catch (error) {
+                console.log(error);
+            }
+        }, SYNC_INTERVAL);
+
+        return () => {
+            clearTimeout(docTimeoutId);
+        };
+    }, [shouldSyncDoc, user, data])
 
     useEffect(() => {
         if (ws) {

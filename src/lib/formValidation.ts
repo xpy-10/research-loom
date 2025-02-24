@@ -75,3 +75,12 @@ export const documentDeleteForm = z.object({
     id: z.number(),
     title: z.string()
 })
+
+export const docSyncValidation = z.object({
+    type: z.literal('quill_doc'),
+    payload: z.object({
+        quill_update: z.instanceof(Uint8Array<ArrayBufferLike>)
+    }),
+    clientId: z.string(),
+    documentId: z.number()
+})

@@ -1,5 +1,5 @@
 import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
-import { Range } from 'json-joy/lib/json-crdt-extensions/peritext/rga/Range';
+import { z } from 'zod';
 
 const model = ModelWithExt.create(ext.quill.new(''));
 const modelBinary = model.api.flush().toBinary();
@@ -52,7 +52,7 @@ export type quillUpdateType = {
 
 export type connectionMessageType = {
     type: socketMessageType,
-    payload?: quillUpdateType | userAwarenessType,
+    payload?: quillUpdateType | userAwarenessType ,
     clientId: string,
     documentId: number
 }

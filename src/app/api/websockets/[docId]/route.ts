@@ -1,4 +1,6 @@
+import { syncDoc } from '@/lib/actions';
 import { connectionMessageType } from '@/lib/types';
+import { useAuth } from '@clerk/nextjs';
 import 'server-only';
 import { z } from "zod";
 
@@ -34,7 +36,6 @@ export async function SOCKET(
     const [fullURL, _, docId] = matches || []
 
     clientDocRooms.set(client, {docId});
-    console.log(clientDocRooms.values());
 
     const { handleMessage } = await createHelpers(client, server, docId);
 
@@ -64,16 +65,11 @@ async function createHelpers( client: import('ws').WebSocket, server: import('ws
             try {
                 const jsonMessage: connectionMessageType = JSON.parse(payload.toString('utf-8'));
                 if (jsonMessage.type == 'quill_update') {
-                    console.log('quill update sent')
-                    const documentId = jsonMessage.documentId;
-                    const clientId = jsonMessage.clientId;
                     const clientArray = getClientKeysFromDocId(clientDocRooms, docId);
                     for (let c of clientArray) if (c !== client) c.send(payload);
                 }
                 if (jsonMessage.type == 'awareness' && jsonMessage.payload) {
-                    console.log('awareness sent')
                     const documentId = jsonMessage.documentId;
-                    const clientId = jsonMessage.clientId;
                     const userMap = createUserMap(jsonMessage.payload, String(documentId));
                     const allAwareness = { type: 'awareness', awarenessMap : JSON.stringify(Object.fromEntries(userMap))}
                     const jsonMap = JSON.stringify(allAwareness);
