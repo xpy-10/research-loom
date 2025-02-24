@@ -63,10 +63,10 @@ export default function Kanban() {
     return ( 
         <>
         <div className="flex gap-4 p-2">
-            <CreateTaskStatusComponent onSuccess={setShouldRefreshLabels}/>
             <CreateTaskComponent onSuccess={setShouldRefreshTasks} />
+            <CreateTaskStatusComponent onSuccess={setShouldRefreshLabels}/>
         </div>
-        <div>
+        <div className="flex justify-start px-4">
         { canRender && <KanbanBoard taskStatusLabels={taskStatusLabels} taskList={taskList} onTaskModify={setShouldRefreshTasks}/>}
         </div>
         </>

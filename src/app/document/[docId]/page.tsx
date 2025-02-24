@@ -11,7 +11,6 @@ export default async function ViewDoc({params}: {params:{docId:string}}) {
     return (
         <>
         <SocketConnector url={`ws://localhost:3000/api/websockets/${docId}`}>
-            You have navigated to document page {docId}
             {data && <QuillWriter data={data} />}
             {!data && <div>No valid document retrieved</div>}
         </SocketConnector>

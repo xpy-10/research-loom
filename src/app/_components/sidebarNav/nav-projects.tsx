@@ -29,7 +29,7 @@ export function NavProjects({
         <SidebarMenuItem>
           <SidebarMenuButton className="text-sidebar-foreground/70">
             <MoreHorizontal className="text-sidebar-foreground/70" />
-            <span><a href="/projects">Create New</a></span>
+            <span><a href="/projects">View/Create Projects</a></span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

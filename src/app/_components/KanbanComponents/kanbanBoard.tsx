@@ -30,11 +30,11 @@ export function KanbanBoard({taskStatusLabels, taskList, onTaskModify}:{taskStat
 
     useEffect(() => {
         setTasks(taskList);
-    }, [taskList]);
+    }, []);
 
     useEffect(() => {
         setColumns([uncategorizedColumn, ...taskStatusLabels]);
-    }, [taskStatusLabels]);
+    }, []);
 
     useEffect(() => {
         if (!isClient) return;
@@ -42,6 +42,7 @@ export function KanbanBoard({taskStatusLabels, taskList, onTaskModify}:{taskStat
         tasks.map((task, index) => {
             updateArray.push({taskId: task.id, kanbanSort: index,  taskLabelId: task.taskStatusId? task.taskStatusId: -1})
         });
+        console.log('updating time')
         changeTaskAttributesKanban(updateArray).then((response) => {
           response.success && response.data && toast({
             description: 'tasks successfully updated'
@@ -167,7 +168,6 @@ export function KanbanBoard({taskStatusLabels, taskList, onTaskModify}:{taskStat
       const activeColumnIndex = columns.findIndex((col) => col.id === activeId);
 
       const overColumnIndex = columns.findIndex((col) => col.id === overId);
-
       return arrayMove(columns, activeColumnIndex, overColumnIndex);
     });
   }
@@ -206,7 +206,6 @@ export function KanbanBoard({taskStatusLabels, taskList, onTaskModify}:{taskStat
           activeTask.taskStatusId = overTask.taskStatusId;
           return arrayMove(tasks, activeIndex, overIndex - 1);
         }
-
         return arrayMove(tasks, activeIndex, overIndex);
       });
     }

@@ -41,7 +41,7 @@ export default function CreateTaskStatusComponent({onSuccess}:{onSuccess?: (arg:
 
     return (
         <>
-        <Button onClick={() => setDialogOpen(true)}>Add Task Status</Button>
+        <Button variant="outline" onClick={() => setDialogOpen(true)}>Add Task Status</Button>
         <Dialog open={dialogOpen} onOpenChange={() => setDialogOpen(false)}>
             <DialogContent>
             <DialogHeader>

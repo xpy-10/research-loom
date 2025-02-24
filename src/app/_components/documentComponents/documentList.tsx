@@ -61,7 +61,7 @@ export default function DocumentList ({data}: {data : documentListItemType[]}) {
     return (
         <>
         <div className="w-full">
-            <div className="flex items-center py-4 px-4">
+            <div className="flex items-center pb-4 gap-2">
                 <CreateDocumentComponent />
                 <Input 
                     placeholder="Filter documents"

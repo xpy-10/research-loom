@@ -3,7 +3,7 @@ import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
 import { NavMain } from "@/app/_components/sidebarNav/nav-main";
 import { NavProjects } from "@/app/_components/sidebarNav/nav-projects";
 import { Sidebar ,SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
-import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { Project } from '@prisma/client';
 
 const data = {
@@ -22,10 +22,6 @@ const data = {
           title: "Kanban Board",
           url: "/kanban",
         },
-        {
-          title: "Gantt Chart",
-          url: "",
-        }
       ],
     },
 
@@ -35,12 +31,8 @@ const data = {
       icon: BookOpen,
       items: [
         {
-          title: "Current Documents",
-          url: "document",
-        },
-        {
-          title: "Create New",
-          url: "document",
+          title: "View/Create Documents",
+          url: "/document",
         },
       ],
     },
@@ -58,7 +50,6 @@ export function AppSidebar({ projects, ...props }: SideBarPropsCustom) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <OrganizationSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

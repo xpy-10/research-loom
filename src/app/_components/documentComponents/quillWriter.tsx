@@ -306,8 +306,8 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
     }, [remoteAwareness])
 
     return (
-        <div>
-            <div className='flex'>
+        <div className="relative">
+            <div className='fixed bottom-4 right-4 bg-transparent p-2 z-20'>
             {
                 remoteAwareness.map((item, index) => {
                     const customColour = stringToColour(item.userId)
