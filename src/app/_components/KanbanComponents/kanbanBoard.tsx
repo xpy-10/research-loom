@@ -14,8 +14,8 @@ import { taskStatusChangeManySchema, taskStatusKanbanSort } from "@/lib/formVali
 import { changeTaskAttributesKanban, changeTaskStatusKanbanSort } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 
-export function KanbanBoard({taskStatusLabels, taskList, onTaskModify}:{taskStatusLabels:TaskStatus[], taskList:Task[], onTaskModify: (arg: boolean) => void}) {
-    const uncategorizedColumn = {id: -1, label: 'uncategorized'}
+export function KanbanBoard({updateKanban, setUpdateKanban, taskStatusLabels, taskList, onTaskModify}:{updateKanban: boolean, setUpdateKanban: (arg: boolean) => void,taskStatusLabels:TaskStatus[], taskList:Task[], onTaskModify: (arg: boolean) => void}) {
+    const uncategorizedColumn = {id: -1, label: 'uncategorized'};
     const [columns, setColumns] = useState<Column[]>([uncategorizedColumn, ...taskStatusLabels]);
     const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
     const [tasks, setTasks] = useState<Task[]>(taskList);
@@ -30,19 +30,18 @@ export function KanbanBoard({taskStatusLabels, taskList, onTaskModify}:{taskStat
 
     useEffect(() => {
         setTasks(taskList);
-    }, []);
+    }, [updateKanban]);
 
     useEffect(() => {
         setColumns([uncategorizedColumn, ...taskStatusLabels]);
-    }, []);
+    }, [updateKanban]);
 
     useEffect(() => {
         if (!isClient) return;
-        let updateArray: z.infer<typeof taskStatusChangeManySchema> = []
+        let updateArray: z.infer<typeof taskStatusChangeManySchema> = [];
         tasks.map((task, index) => {
             updateArray.push({taskId: task.id, kanbanSort: index,  taskLabelId: task.taskStatusId? task.taskStatusId: -1})
         });
-        console.log('updating time')
         changeTaskAttributesKanban(updateArray).then((response) => {
           response.success && response.data && toast({
             description: 'tasks successfully updated'

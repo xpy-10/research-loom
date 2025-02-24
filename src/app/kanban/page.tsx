@@ -12,11 +12,13 @@ export default function Kanban() {
     const [taskList, setTaskList] = useState<Task[]>();
     const [shouldRefreshLabels, setShouldRefreshLabels] = useState(false);
     const [shouldRefreshTasks, setShouldRefreshTasks] = useState(false);
+    const [updateKanban, setUpdateKanban] = useState(false);
     const { toast } = useToast();
 
     const refreshLabels = useCallback(() => {
         fetchAllTaskStatus().then((response) => {
             response.success && response.data && setTaskStatusLabels(response.data);
+            response.success && setUpdateKanban(true);
             !response.success && response.message && toast({
                 description: 'Unable to refresh task status list'
             });
@@ -31,6 +33,7 @@ export default function Kanban() {
     const refreshTasks = useCallback(() => {
         fetchTasks().then((response) => {
             response.success && response.data && setTaskList(response.data);
+            response.success && setUpdateKanban(true);
             !response.success && response.message && toast({
                 description: 'Unable to refresh tasks'
             });
@@ -67,7 +70,7 @@ export default function Kanban() {
             <CreateTaskStatusComponent onSuccess={setShouldRefreshLabels}/>
         </div>
         <div className="flex justify-start px-4">
-        { canRender && <KanbanBoard taskStatusLabels={taskStatusLabels} taskList={taskList} onTaskModify={setShouldRefreshTasks}/>}
+        { canRender && <KanbanBoard updateKanban={updateKanban} setUpdateKanban={setUpdateKanban} taskStatusLabels={taskStatusLabels} taskList={taskList} onTaskModify={setShouldRefreshTasks}/>}
         </div>
         </>
     )
