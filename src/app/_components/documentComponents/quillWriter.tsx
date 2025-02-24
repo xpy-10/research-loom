@@ -16,6 +16,7 @@ import { awarenessConsumerType, connectionMessageType, rangeType, userAwarenessT
 const CURSOR_LATENCY = 1000;
 const QUILL_LATENCY = 1000;
 import { stringToColour } from '@/lib/utils';
+import './quillWriterStyles.css';
 
 const schema = s.obj({
     document: s.obj({
@@ -39,7 +40,7 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
             
             [{ size: ['small', false, 'large', 'huge'] }],
             [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            ['link', 'image', 'video'],
+            ['link', 'image', 'video', 'blockquote', 'code-block'],
             [{ color: [] }, { background: [] }],
         ],
         clipboard: {
@@ -47,12 +48,12 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
         },
         cursors: { transformOnTextChange: true}
     };
-    const placeholder = 'start your document';
+    const placeholder = '';
     const formats = [
         'bold', 'italic', 'underline', 'strike',
         'align', 'list', 'indent',
         'size', 'header',
-        'link', 'image', 'video',
+        'link', 'image', 'video', 'blockquote', 'code-block',
         'color', 'background',
     ]
     
@@ -277,11 +278,9 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
                 })
             }
             </div>
-            <div>
-            </div>
-            <div style={{ width: 500, height: 300 }}>
+            <div id="doc-container">
             <div>Title: {title}</div>
-            <div ref={quillRef} />
+            <div id="quill-container" ref={quillRef} />
             </div>
         </div>
     );
