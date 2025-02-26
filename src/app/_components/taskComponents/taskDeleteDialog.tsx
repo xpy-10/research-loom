@@ -5,7 +5,7 @@ import { deleteTask } from "@/lib/actions";
 import { Task } from "@prisma/client";
 import { usePathname } from "next/navigation";
 
-export default function TaskDeleteDialog({deleteTaskDialog, setDeleteTaskDialog, currentTask}:{deleteTaskDialog:boolean, setDeleteTaskDialog: (arg:boolean) => void, currentTask: Task|undefined}) {
+export default function TaskDeleteDialog({deleteTaskDialog, setDeleteTaskDialog, currentTask, onTaskDelete}:{deleteTaskDialog:boolean, setDeleteTaskDialog: (arg:boolean) => void, currentTask: Task|undefined, onTaskDelete?: (arg: Task|undefined) => void }) {
     const { toast } = useToast();
     const pathname = usePathname();
     
@@ -16,6 +16,7 @@ export default function TaskDeleteDialog({deleteTaskDialog, setDeleteTaskDialog,
             response.success && response.data && toast({
                 description: 'Successfully deleted task'
             });
+            response.success && response.data && onTaskDelete && onTaskDelete(response.data);
             !response.success && response.message && toast({
                 description: response.message
             });

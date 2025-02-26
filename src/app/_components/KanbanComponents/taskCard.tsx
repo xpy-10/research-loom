@@ -13,6 +13,7 @@ interface TaskCardProps {
   task: Task;
   isOverlay?: boolean;
   onTaskModify: (arg: boolean) => void;
+  onTaskDelete: (arg: Task|undefined) => void;
 }
 
 export type TaskType = "Task";
@@ -22,7 +23,7 @@ export interface TaskDragData {
   task: Task;
 }
 
-export function TaskCard({ task, isOverlay, onTaskModify }: TaskCardProps) {
+export function TaskCard({ task, isOverlay, onTaskModify, onTaskDelete }: TaskCardProps) {
   const {setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: {
@@ -44,7 +45,8 @@ export function TaskCard({ task, isOverlay, onTaskModify }: TaskCardProps) {
     setTaskDialogData: setTaskDialogData,
     setDeleteTaskDialog: setDeleteTaskDialog,
     deleteTaskDialog: deleteTaskDialog,
-    onTaskModify: onTaskModify
+    onTaskModify: onTaskModify,
+    onTaskDelete: onTaskDelete
   }
   const style = {
     transition,

@@ -8,17 +8,24 @@ import { TaskCard } from "./taskCard";
 import type { Column } from "./boardColumn";
 import { hasDraggableData } from "@/lib/utils";
 import { coordinateGetter } from "./multipleContainersKeyboardPreset";
-import { TaskStatus, Task } from "@prisma/client";
+import { Task } from "@prisma/client";
 import { z } from "zod";
 import { taskStatusChangeManySchema, taskStatusKanbanSort } from "@/lib/formValidation";
-import { changeTaskAttributesKanban, changeTaskStatusKanbanSort } from "@/lib/actions";
+import { changeTaskAttributesKanban, changeTaskStatusKanbanSort, fetchAllTaskStatus, fetchTasks } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
+import { useKanbanContext } from "./kanbanContext";
 
-export function KanbanBoard({updateKanban, setUpdateKanban, taskStatusLabels, taskList, onTaskModify}:{updateKanban: boolean, setUpdateKanban: (arg: boolean) => void,taskStatusLabels:TaskStatus[], taskList:Task[], onTaskModify: (arg: boolean) => void}) {
+export function KanbanBoard() {
+
     const uncategorizedColumn = {id: -1, label: 'uncategorized'};
-    const [columns, setColumns] = useState<Column[]>([uncategorizedColumn, ...taskStatusLabels]);
-    const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
-    const [tasks, setTasks] = useState<Task[]>(taskList);
+    const { listOfLabels, listOfTasks, 
+      setListOfLabels, setListOfTasks, 
+      shouldRefreshTasks, setShouldRefreshTasks, 
+      shouldProcessDeleteTask, setShouldProcessDeleteTask,
+      modifyTasksEvent, setModifyTasksEvent,
+      modifyLabelsEvent, setModifyLabelsEvent,
+    } = useKanbanContext();
+    const columnsId = useMemo(() => listOfLabels.map((col) => col.id), [listOfLabels]);
     const [activeColumn, setActiveColumn] = useState<Column | null>(null);
     const [activeTask, setActiveTask] = useState<Task | null>(null);
     const [isClient, setIsClient] = useState(false);
@@ -26,58 +33,115 @@ export function KanbanBoard({updateKanban, setUpdateKanban, taskStatusLabels, ta
 
     useEffect(() => {
         setIsClient(true);
+        fetchAllTaskStatus().then((response) => {
+            response.success && response.data && setListOfLabels([uncategorizedColumn, ...response.data]);
+            !response.success && response.message && toast({
+                description: 'Unable to fetch task status list'
+            });
+        }).catch((error) => {
+            console.log(error);
+            toast({
+                description: 'Client: Error fetching updated task status list'
+            })
+        });
+        fetchTasks().then((response) => {
+                  response.success && response.data && setListOfTasks(response.data);
+                  !response.success && response.message && toast({
+                      description: 'Unable to refresh tasks'
+                  });
+              }).catch((error) => {
+                  console.log(error);
+                  toast({
+                      description: 'Client: Error fetching updated tasks'
+                  })
+              })
     }, []);
 
     useEffect(() => {
-        setTasks(taskList);
-    }, [updateKanban]);
-
-    useEffect(() => {
-        setColumns([uncategorizedColumn, ...taskStatusLabels]);
-    }, [updateKanban]);
-
-    useEffect(() => {
-        if (!isClient) return;
-        let updateArray: z.infer<typeof taskStatusChangeManySchema> = [];
-        tasks.map((task, index) => {
-            updateArray.push({taskId: task.id, kanbanSort: index,  taskLabelId: task.taskStatusId? task.taskStatusId: -1})
-        });
-        changeTaskAttributesKanban(updateArray).then((response) => {
-          response.success && response.data && toast({
-            description: 'tasks successfully updated'
-          });
-          !response.success && response.message && toast({
-            description: "error updating the tasks"
-          })
+        if (!isClient || !modifyLabelsEvent) return;
+        console.log('labels :', modifyLabelsEvent);
+        setModifyLabelsEvent(false)
+        fetchAllTaskStatus().then((response) => {
+            response.success && response.data && setListOfLabels([uncategorizedColumn, ...response.data]);
+            !response.success && response.message && toast({
+                description: 'Unable to refresh task status list'
+            });
         }).catch((error) => {
+            console.log(error);
+            toast({
+                description: 'Client: Error fetching updated task status list'
+            })
+        })
+    }, [modifyLabelsEvent]);
+
+    useEffect(() => {
+      if (!modifyTasksEvent) return;
+      setModifyTasksEvent(false);
+      fetchTasks().then((response) => {
+          response.success && response.data && setListOfTasks(response.data);
+          !response.success && response.message && toast({
+              description: 'Unable to refresh tasks'
+          });
+      }).catch((error) => {
           console.log(error);
           toast({
-            description: "error with database operation"
+              description: 'Client: Error fetching updated tasks'
           })
-        });
-        
-    }, [tasks])
+      });
+    }, [modifyTasksEvent]);
 
     useEffect(() => {
-        if (!isClient) return;
-        let updateArray: z.infer<typeof taskStatusKanbanSort> = []
-        columns.map((column, index) => {
-            updateArray.push({id: Number(column.id), kanbanColSort: index})
-        });
-        changeTaskStatusKanbanSort(updateArray).then((response) => {
-          response.success && response.data && toast({
-            description: 'columns successfully updated'
+      if (!shouldProcessDeleteTask) return;
+      const newList = listOfTasks.filter((task) => {
+        return task.id != shouldProcessDeleteTask.id
+      })
+      setListOfTasks(newList);
+      setShouldProcessDeleteTask(undefined)
+    }, [shouldProcessDeleteTask])
+
+    useEffect(() => {
+        if (!isClient || !listOfTasks || !shouldRefreshTasks || modifyTasksEvent || shouldProcessDeleteTask) return; 
+        setShouldRefreshTasks(false);
+          let updateArray: z.infer<typeof taskStatusChangeManySchema> = [];
+          listOfTasks.map((task, index) => {
+              updateArray.push({taskId: task.id, kanbanSort: index,  taskLabelId: task.taskStatusId? task.taskStatusId: -1})
           });
-          !response.success && response.message && toast({
-            description: "error updating the columns"
-          })
-        }).catch((error) => {
-          console.log(error);
-          toast({
-            description: "error with database operation"
-          })
-        });
-    }, [columns])
+          changeTaskAttributesKanban(updateArray).then((response) => {
+            response.success && response.data && toast({
+              description: 'tasks successfully updated'
+            });
+            !response.success && response.message && toast({
+              description: "error updating the tasks"
+            })
+          }).catch((error) => {
+            console.log(error);
+            toast({
+              description: "error with database operation"
+            })
+          });
+    }, [shouldRefreshTasks]);
+
+    useEffect(() => {
+        if (!isClient || !listOfLabels) return;
+        console.log('update array')
+          let updateArray: z.infer<typeof taskStatusKanbanSort> = []
+          listOfLabels.map((column, index) => {
+              updateArray.push({id: Number(column.id), kanbanColSort: index})
+          });
+          changeTaskStatusKanbanSort(updateArray).then((response) => {
+            response.success && response.data && toast({
+              description: 'columns successfully updated'
+            });
+            !response.success && response.message && toast({
+              description: "error updating the columns"
+            })
+          }).catch((error) => {
+            console.log(error);
+            toast({
+              description: "error with database operation"
+            })
+          });
+    }, [listOfLabels])
     
     const sensors = useSensors(
     useSensor(MouseSensor),
@@ -87,7 +151,7 @@ export function KanbanBoard({updateKanban, setUpdateKanban, taskStatusLabels, ta
     })
   );
 
-  const returnValue = (isClient? (
+  const returnValue = (isClient && columnsId && listOfLabels && listOfTasks ? (
   <DndContext
     sensors={sensors}
     onDragStart={onDragStart}
@@ -96,12 +160,13 @@ export function KanbanBoard({updateKanban, setUpdateKanban, taskStatusLabels, ta
   >
     <BoardContainer>
       <SortableContext items={columnsId}>
-        {columns.map((col) => (
+        {listOfLabels.map((col) => (
           <BoardColumn
             key={col.id}
             column={col}
-            tasks={tasks.filter((task) => task.taskStatusId === col.id || !task.taskStatusId && col.id === -1)}
-            onTaskModify={onTaskModify}
+            tasks={listOfTasks.filter((task) => task.taskStatusId === col.id || !task.taskStatusId && col.id === -1)}
+            onTaskModify={setShouldRefreshTasks}
+            onTaskDelete={setShouldProcessDeleteTask}
           />
         ))}
       </SortableContext>
@@ -114,13 +179,14 @@ export function KanbanBoard({updateKanban, setUpdateKanban, taskStatusLabels, ta
             <BoardColumn
               isOverlay
               column={activeColumn}
-              tasks={tasks.filter(
+              tasks={listOfTasks.filter(
                 (task) => task.taskStatusId === activeColumn.id || !task.taskStatusId && activeColumn.id === -1
               )}
-              onTaskModify={onTaskModify}
+              onTaskModify={setShouldRefreshTasks}
+              onTaskDelete={setShouldProcessDeleteTask}
             />
           )}
-          {activeTask && <TaskCard onTaskModify={onTaskModify} task={activeTask} isOverlay />}
+          {activeTask && <TaskCard onTaskModify={setShouldRefreshTasks} onTaskDelete={setShouldProcessDeleteTask} task={activeTask} isOverlay />}
         </DragOverlay>,
         document.body
       )}
@@ -163,11 +229,18 @@ export function KanbanBoard({updateKanban, setUpdateKanban, taskStatusLabels, ta
     const isActiveAColumn = activeData?.type === "Column";
     if (!isActiveAColumn) return;
 
-    setColumns((columns) => {
-      const activeColumnIndex = columns.findIndex((col) => col.id === activeId);
+    const newLabels = listOfLabels? ((listOfLabels: any) => {
+      const activeColumnIndex = listOfLabels.findIndex((col: any) => col.id === activeId);
 
-      const overColumnIndex = columns.findIndex((col) => col.id === overId);
-      return arrayMove(columns, activeColumnIndex, overColumnIndex);
+      const overColumnIndex = listOfLabels.findIndex((col: any) => col.id === overId);
+      return arrayMove(listOfLabels, activeColumnIndex, overColumnIndex);
+    }): (undefined);
+
+    setListOfLabels((listOfLabels) => {
+      const activeColumnIndex = listOfLabels.findIndex((col) => col.id === activeId);
+
+      const overColumnIndex = listOfLabels.findIndex((col) => col.id === overId);
+      return arrayMove(listOfLabels, activeColumnIndex, overColumnIndex);
     });
   }
 
@@ -192,20 +265,20 @@ export function KanbanBoard({updateKanban, setUpdateKanban, taskStatusLabels, ta
 
     // Im dropping a Task over another Task
     if (isActiveATask && isOverATask) {
-      setTasks((tasks) => {
-        const activeIndex = tasks.findIndex((t) => t.id === activeId);
-        const overIndex = tasks.findIndex((t) => t.id === overId);
-        const activeTask = tasks[activeIndex];
-        const overTask = tasks[overIndex];
+      setListOfTasks((listOfTasks) => {
+        const activeIndex = listOfTasks.findIndex((t) => t.id === activeId);
+        const overIndex = listOfTasks.findIndex((t) => t.id === overId);
+        const activeTask = listOfTasks[activeIndex];
+        const overTask = listOfTasks[overIndex];
         if (
           activeTask &&
           overTask &&
           activeTask.taskStatusId !== overTask.taskStatusId
         ) {
           activeTask.taskStatusId = overTask.taskStatusId;
-          return arrayMove(tasks, activeIndex, overIndex - 1);
+          return arrayMove(listOfTasks, activeIndex, overIndex - 1);
         }
-        return arrayMove(tasks, activeIndex, overIndex);
+        return arrayMove(listOfTasks, activeIndex, overIndex);
       });
     }
 
@@ -213,14 +286,14 @@ export function KanbanBoard({updateKanban, setUpdateKanban, taskStatusLabels, ta
 
     // Im dropping a Task over a column
     if (isActiveATask && isOverAColumn) {
-      setTasks((tasks) => {
-        const activeIndex = tasks.findIndex((t) => t.id === activeId);
-        const activeTask = tasks[activeIndex];
+      setListOfTasks((listOfTasks) => {
+        const activeIndex = listOfTasks.findIndex((t) => t.id === activeId);
+        const activeTask = listOfTasks[activeIndex];
         if (activeTask) {
           activeTask.taskStatusId = overId as number;
-          return arrayMove(tasks, activeIndex, activeIndex);
+          return arrayMove(listOfTasks, activeIndex, activeIndex);
         }
-        return tasks;
+        return listOfTasks;
       });
     }
   }

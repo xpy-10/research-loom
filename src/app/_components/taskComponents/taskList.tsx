@@ -134,11 +134,6 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
                 const task = row.original;
                 const props = {
                     task: task,
-                    // setViewTaskDialog: setViewTaskDialog,
-                    // viewTaskDialog: viewTaskDialog,
-                    // setTaskDialogData: setTaskDialogData,
-                    // setDeleteTaskDialog: setDeleteTaskDialog,
-                    // deleteTaskDialog: deleteTaskDialog,
                 }
                 return (
                    <TaskOptions {...props} />

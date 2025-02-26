@@ -10,14 +10,15 @@ import { useEffect, useState } from "react";
 
 type taskOptionsType = {
     task: Task,
-    onTaskModify?: (arg: boolean) => void
+    onTaskModify?: (arg: boolean) => void,
+    onTaskDelete?: (arg: Task|undefined) => void
 }
-export default function TaskOptions({task, onTaskModify}: taskOptionsType) {
+export default function TaskOptions({task, onTaskModify, onTaskDelete}: taskOptionsType) {
     const [viewTaskDialog, setViewTaskDialog] = useState(false);
     const [deleteTaskDialog, setDeleteTaskDialog] = useState(false);
     useEffect(() => {
-        (!viewTaskDialog || !deleteTaskDialog) && onTaskModify && onTaskModify(true);
-    }, [viewTaskDialog, deleteTaskDialog]);
+        (!viewTaskDialog) && onTaskModify && onTaskModify(true);
+    }, [viewTaskDialog]);
 
     return (
         <>
@@ -50,7 +51,7 @@ export default function TaskOptions({task, onTaskModify}: taskOptionsType) {
         </DropdownMenuContent>
         </DropdownMenu>
         <EditTaskComponent dialogOpen={viewTaskDialog} setDialogOpen={setViewTaskDialog} currentTask={task}/>
-        <TaskDeleteDialog deleteTaskDialog={deleteTaskDialog} setDeleteTaskDialog={setDeleteTaskDialog} currentTask={task} />
+        <TaskDeleteDialog deleteTaskDialog={deleteTaskDialog} setDeleteTaskDialog={setDeleteTaskDialog} currentTask={task} onTaskDelete={onTaskDelete} />
         </>
     )
 }
