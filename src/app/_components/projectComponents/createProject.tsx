@@ -49,7 +49,7 @@ export default function CreateProject() {
     const formReturn = organization? (
         <>
         <div className="w-1/2">
-        <Card>
+        <Card data-cy="create-project-form">
         <CardHeader>
             <CardTitle>Create a Project</CardTitle>
             <CardDescription>Fill in the form below to initiate a new project</CardDescription>
@@ -64,7 +64,7 @@ export default function CreateProject() {
                     <FormItem>
                     <FormLabel>Project Name</FormLabel>
                     <FormControl>
-                        <Input  {...field}/>
+                        <Input data-cy="project-name-field"  {...field}/>
                     </FormControl>
                     <FormDescription>
                         This is your project's name
@@ -80,7 +80,7 @@ export default function CreateProject() {
                     <FormItem>
                     <FormLabel>Project Description</FormLabel>
                     <FormControl>
-                        <Input  {...field} />
+                        <Input data-cy="project-description-field"  {...field} />
                     </FormControl>
                     <FormDescription>
                         Project description
@@ -90,7 +90,7 @@ export default function CreateProject() {
                 )}
                 />
                 <CardFooter>
-                    <Button type="submit">Submit</Button> 
+                    <Button data-cy="project-create-submit" type="submit">Submit</Button> 
                 </CardFooter>
             </form>
         </Form>

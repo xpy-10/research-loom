@@ -30,22 +30,22 @@ export default function ProjectsDropDownMenu({project}: {project: createProjectT
     return (
         <>
         <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger data-cy={`project-dropdown-menu-${project.name}`}>
         <MoreHorizontal className="text-sidebar-foreground/90"/>
         <span className="sr-only">More</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
         <DropdownMenuLabel>Project {project.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => handleMenuSelection(project)}>
+        <DropdownMenuItem data-cy={`project-dropdown-menu-view-${project.name}`} onClick={() => handleMenuSelection(project)}>
             <Folder className="text-neutral-500 dark:text-neutral-400" />
             <span>View Project</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setSelection('edit')}>
+        <DropdownMenuItem data-cy={`project-dropdown-menu-edit-${project.name}`} onClick={() => setSelection('edit')}>
             <Pencil className="text-neutral-500 dark:text-neutral-400" />
             <span>Edit Project</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setSelection('delete')}>
+        <DropdownMenuItem data-cy={`project-dropdown-menu-delete-${project.name}`} onClick={() => setSelection('delete')}>
             <Trash2 className="text-neutral-500 dark:text-neutral-400" />
             <span>Delete Project</span>
         </DropdownMenuItem>

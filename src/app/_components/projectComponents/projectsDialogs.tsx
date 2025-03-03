@@ -68,13 +68,13 @@ export default function ProjectsDialogs({project, setSelection, selection}: {pro
         </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-        <Button onClick={() => handleMenuDelete(project)}>Confirm</Button>
+        <Button data-cy={`delete-project-dialog-confirm-${project.name}`} onClick={() => handleMenuDelete(project)}>Confirm</Button>
         </DialogFooter>
         </DialogContent>
         </Dialog>
 
         <Dialog open={selection==='edit'} onOpenChange={()=> setSelection(undefined)}>
-        <DialogContent>
+        <DialogContent data-cy={`edit-project-dialog-${project.name}`}>
         <DialogHeader>
         <DialogTitle>Enter new project attributes</DialogTitle>
         </DialogHeader>
@@ -87,7 +87,7 @@ export default function ProjectsDialogs({project, setSelection, selection}: {pro
                 <FormItem>
                 <FormLabel>Project Name</FormLabel>
                 <FormControl>
-                    <Input  placeholder={project.name}{...field} />
+                    <Input  data-cy={`edit-project-name-input-${project.name}`} placeholder={project.name}{...field} />
                 </FormControl>
                 <FormDescription>
                     This is your project's name
@@ -103,7 +103,7 @@ export default function ProjectsDialogs({project, setSelection, selection}: {pro
                 <FormItem>
                 <FormLabel>Project Description</FormLabel>
                 <FormControl>
-                    <Input  placeholder={project.description}{...field} />
+                    <Input  data-cy={`edit-project-description-input-${project.name}`} placeholder={project.description}{...field} />
                 </FormControl>
                 <FormDescription>
                     Project description
@@ -114,7 +114,7 @@ export default function ProjectsDialogs({project, setSelection, selection}: {pro
             />
         <DialogFooter>
         <Button variant="secondary" onClick={() => setSelection(undefined)}>Cancel</Button>
-        <Button type="submit">Submit</Button> 
+        <Button data-cy={`edit-project-submit-${project.name}`} type="submit">Submit</Button> 
         </DialogFooter>
         </form>
         </Form>

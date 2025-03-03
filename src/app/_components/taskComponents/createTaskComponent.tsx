@@ -46,7 +46,7 @@ export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolea
 
     return (
         <>
-        <Button onClick={() => setDialogOpen(true)}>Add Task</Button>
+        <Button data-cy={`add-task-button`} onClick={() => setDialogOpen(true)}>Add Task</Button>
         <Dialog open={dialogOpen===true} onOpenChange={() => setDialogOpen(false)}>
             <DialogContent>
             <DialogHeader>
@@ -63,10 +63,10 @@ export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolea
                     <FormItem>
                         <FormLabel>Task Title</FormLabel>
                         <FormControl>
-                            <Input placeholder='...task title'{...field} />
+                            <Input data-cy={'add-task-form-title'} placeholder='...task title'{...field} />
                         </FormControl>
                         <FormDescription>
-                            This is your project's Title
+                            This is your task's Title
                         </FormDescription>
                         <FormMessage />
                     </FormItem>
@@ -79,7 +79,7 @@ export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolea
                     <FormItem>
                         <FormLabel>Task Details</FormLabel>
                         <FormControl>
-                            <Textarea placeholder='...task details'{...field} />
+                            <Textarea data-cy={'add-task-form-details'} placeholder='...task details'{...field} />
                         </FormControl>
                         <FormDescription>
                             This is your task's details
@@ -132,7 +132,7 @@ export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolea
                 )}
                 />
                 <DialogFooter>
-                    <Button type='submit'>Submit</Button>
+                    <Button data-cy={'add-task-form-submit'} type='submit'>Submit</Button>
                 </DialogFooter>
             </form>
             </Form>

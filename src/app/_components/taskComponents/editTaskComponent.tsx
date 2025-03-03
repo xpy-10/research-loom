@@ -77,7 +77,7 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
                             <Input placeholder={currentTask.title}{...field} />
                         </FormControl>
                         <FormDescription>
-                            This is your project's Title
+                            This is your task's Title
                         </FormDescription>
                         <FormMessage />
                     </FormItem>

@@ -52,7 +52,7 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
                     </Button>
                 )
             },
-            cell: ({ row }) => <div>{row.getValue('title')}</div>
+            cell: ({ row }) => <div data-cy={`task-list-${row.getValue('title')}`}>{row.getValue('title')}</div>
         },
         {
             accessorKey: 'status',

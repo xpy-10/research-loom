@@ -13,14 +13,17 @@ const data = {
       url: "",
       icon: SquareTerminal,
       isActive: true,
+      dataCy: "task-management",
       items: [
         {
           title: "Task List",
           url: "/tasks",
+          dataCy: "task-list"
         },
         {
           title: "Kanban Board",
           url: "/kanban",
+          dataCy: "kanban-board"
         },
       ],
     },
@@ -29,10 +32,12 @@ const data = {
       title: "Documents",
       url: "",
       icon: BookOpen,
+      dataCy: "documents",
       items: [
         {
           title: "View/Create Documents",
           url: "/document",
+          dataCY: "view/create-documents"
         },
       ],
     },
@@ -53,7 +58,7 @@ export function AppSidebar({ projects, ...props }: SideBarPropsCustom) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-          <NavProjects projects={projects} />
+        <NavProjects projects={projects} />
       </SidebarContent>
       <SidebarFooter>
         <UserButton/>

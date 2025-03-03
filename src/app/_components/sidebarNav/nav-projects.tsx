@@ -23,11 +23,11 @@ export function NavProjects({
               <BriefcaseBusiness />
               <span>{project.name}</span>
             </SidebarMenuButton>
-            <ProjectsDropDownSidebar project={project} />
+            <ProjectsDropDownSidebar   project={project} />
           </SidebarMenuItem>
         ))}
         <SidebarMenuItem>
-          <SidebarMenuButton className="text-sidebar-foreground/70">
+          <SidebarMenuButton data-cy="view/createProjects" className="text-sidebar-foreground/70">
             <MoreHorizontal className="text-sidebar-foreground/70" />
             <span><a href="/projects">View/Create Projects</a></span>
           </SidebarMenuButton>
