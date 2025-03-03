@@ -1,6 +1,6 @@
 'use client'
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PriorityTag, Task, TaskStatus } from "@prisma/client"
@@ -21,9 +21,6 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = useState({})
-    const [viewTaskDialog, setViewTaskDialog] = useState(false);
-    const [deleteTaskDialog, setDeleteTaskDialog] = useState(false);
-    const [taskDialogData, setTaskDialogData] = useState<Task|undefined>(undefined);
     
     const columns: ColumnDef<Task >[] = [
         {
