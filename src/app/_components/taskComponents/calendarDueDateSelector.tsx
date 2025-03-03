@@ -1,9 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { updateTaskInline } from "@/lib/actions";
-import { buttonStyle, cn } from "@/lib/utils";
+import { buttonStyle } from "@/lib/utils";
 import { Task } from "@prisma/client";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -17,12 +16,14 @@ export default function CalendarDueDateSelector({task}:{task:Task}) {
     const handleChangeDate = (value:Date|undefined) => {
         setPickedDate(value);
         updateTaskInline({id: task.id, dueDate: value}, pathname).then((response) => {
+            /* eslint-disable  @typescript-eslint/no-unused-expressions */
             response.success && response.data && toast({
                 description: "Successfully updated task's due date"
             });
             !response.success && response.message && toast({
                 description: response.message
             });
+            /* eslint-enable  @typescript-eslint/no-unused-expressions */
         }).catch((error) => {
             console.log(error);
             toast({

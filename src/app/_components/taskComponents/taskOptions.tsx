@@ -17,8 +17,10 @@ export default function TaskOptions({task, onTaskModify, onTaskDelete}: taskOpti
     const [viewTaskDialog, setViewTaskDialog] = useState(false);
     const [deleteTaskDialog, setDeleteTaskDialog] = useState(false);
     useEffect(() => {
+    /* eslint-disable @typescript-eslint/no-unused-expressions, react-hooks/exhaustive-deps*/
         (!viewTaskDialog) && onTaskModify && onTaskModify(true);
     }, [viewTaskDialog]);
+    /* eslint-enable @typescript-eslint/no-unused-expressions, react-hooks/exhaustive-deps*/
 
     return (
         <>

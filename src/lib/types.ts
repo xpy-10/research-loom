@@ -1,8 +1,8 @@
 import {ModelWithExt, ext} from 'json-joy/lib/json-crdt-extensions';
-import { z } from 'zod';
 
 const model = ModelWithExt.create(ext.quill.new(''));
 const modelBinary = model.api.flush().toBinary();
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const model2 = ModelWithExt.load(modelBinary);
 
 
@@ -47,7 +47,7 @@ export type awarenessConsumerType = {
 }
 
 export type quillUpdateType = {
-    quill_update: Uint8Array<ArrayBufferLike>
+    quill_update: Uint8Array
 }
 
 export type connectionMessageType = {

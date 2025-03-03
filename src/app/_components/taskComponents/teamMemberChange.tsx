@@ -17,6 +17,7 @@ export default function TeamMemberChange({task}: {task:Task}) {
         setShouldUpdate(true);
         const updateAssignee = async () => {
             const updatedTask = await updateTaskInline({id: task.id, assigned_to: assigneeId}, pathname)
+            /* eslint-disable @typescript-eslint/no-unused-expressions */
             updatedTask?.success && updatedTask.data && toast({
                 description: `${assigneeId===''?'Successfully unassigned task': 'Successfully assigned task'} `
             })
@@ -25,7 +26,9 @@ export default function TeamMemberChange({task}: {task:Task}) {
             })
         };
         shouldUpdate && updateAssignee();
+        /* eslint-enable @typescript-eslint/no-unused-expressions */
         return () => setShouldUpdate(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [assigneeId])
 
     return (

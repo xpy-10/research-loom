@@ -2,13 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
-import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
+import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { documentListItemType } from "@/lib/types";
 import DocumentOptions from "./documentOptions";
-import QuillWriter from "./quillWriter";
 import CreateDocumentComponent from "./createDocumentComponent";
 
 export default function DocumentList ({data}: {data : documentListItemType[]}) {

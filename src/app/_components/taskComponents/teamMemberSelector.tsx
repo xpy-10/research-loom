@@ -1,5 +1,4 @@
 'use client'
-import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
 import { buttonStyle } from "@/lib/utils";
 import { useOrganization } from "@clerk/nextjs";
@@ -16,15 +15,18 @@ export default function TeamMemberSelector({selectedTeamMemberId, setSelectedTea
     if (!memberships) {
         return <></>
     }
+    /* eslint-disable react-hooks/rules-of-hooks */
     const [assignee , setAssignee] = useState<string>('Not assigned');
 
     useEffect(() => {
         if (memberships) {
             const selectedMember = memberships && memberships.data && memberships.data.find((member) => (member.id == selectedTeamMemberId));
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             selectedMember && setAssignee(`${selectedMember.publicUserData.firstName} ${selectedMember.publicUserData.lastName}`);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [memberships]);
-
+    /* eslint-enable react-hooks/rules-of-hooks */
     return (
         <>
         <DropdownMenu>

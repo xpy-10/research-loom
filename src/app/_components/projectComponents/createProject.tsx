@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useOrganization } from "@clerk/nextjs";
 
 export default function CreateProject() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [value, setValue] = useState<projectType_db>();
     const { toast } = useToast();
     const path = usePathname();
@@ -27,9 +28,9 @@ export default function CreateProject() {
             description: ''
         }
     })
-
     async function onSubmit(values: z.infer<typeof projectFormSchema>) {
         createProject(values, path).then((response) => {
+            /* eslint-disable  @typescript-eslint/no-unused-expressions */
             response.success && response.data && setValue(response);
             response.success && response.data && toast({
                 description: `${response.data.name + ' has been created'
@@ -38,6 +39,7 @@ export default function CreateProject() {
             !response.success && response.message && toast({
                 description: response.message
             })
+            /* eslint-enable  @typescript-eslint/no-unused-expressions */
         }).catch((error) => {
             console.log(error);
             toast({
@@ -67,7 +69,7 @@ export default function CreateProject() {
                         <Input data-cy="project-name-field"  {...field}/>
                     </FormControl>
                     <FormDescription>
-                        This is your project's name
+                        This is your project&apos;s name
                     </FormDescription>
                     <FormMessage />
                     </FormItem>

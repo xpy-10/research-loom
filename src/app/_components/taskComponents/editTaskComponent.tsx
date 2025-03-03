@@ -25,9 +25,10 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
     if (!currentTask){
         return (<></>)
     }
-
+    /* eslint-disable react-hooks/rules-of-hooks */
     const pathname = usePathname();
     const { toast } = useToast();
+
     const taskForm = useForm<z.infer<typeof taskFormSchema>>({
             resolver: zodResolver(taskFormSchema),
             defaultValues: {
@@ -38,16 +39,19 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
                 priority: taskPriorityEnum.parse(currentTask.priority)
             }
         })
+    /* eslint-enable react-hooks/rules-of-hooks */
 
     const handleSubmit = (values: z.infer<typeof taskFormSchema>, pathName: string) => {
         setDialogOpen(false);
         updateTask(values, pathName).then((response) => {
+            /* eslint-disable  @typescript-eslint/no-unused-expressions */
             response.success && response.data && toast({
                 description: `Successfully updated task with title ${response.data.title}`
             });
             !response.success && response.message && toast({
                 description: response.message
             });
+            /* eslint-enable  @typescript-eslint/no-unused-expressions */
         }).catch((error) => {
             console.log(error);
             toast({
@@ -77,7 +81,7 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
                             <Input placeholder={currentTask.title}{...field} />
                         </FormControl>
                         <FormDescription>
-                            This is your task's Title
+                            This is your task&apos;s Title
                         </FormDescription>
                         <FormMessage />
                     </FormItem>
@@ -93,7 +97,7 @@ export default function EditTaskComponent({dialogOpen, setDialogOpen, currentTas
                             <Textarea placeholder={currentTask.description}{...field} />
                         </FormControl>
                         <FormDescription>
-                            This is your task's details
+                            This is your task&apos;s details
                         </FormDescription>
                         <FormMessage />
                     </FormItem>

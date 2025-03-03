@@ -11,7 +11,7 @@ export default function DocumentDeleteDialog({deleteDocDialog, setDeleteDocDialo
     const handleMenuDelete = (document: documentListItemType|undefined) => {
         setDeleteDocDialog(false);
         if (!document) { return };
-        console.log(document)
+        /* eslint-disable @typescript-eslint/no-unused-expressions */
         deleteDocument(document, pathname).then((response) => {
             response.success && response.data && toast({
                 description: 'Successfully deleted document'
@@ -25,6 +25,7 @@ export default function DocumentDeleteDialog({deleteDocDialog, setDeleteDocDialo
                 description: 'Client: Error deleting document'
             })
         });
+        /* eslint-enable @typescript-eslint/no-unused-expressions */
 
     }
     return (

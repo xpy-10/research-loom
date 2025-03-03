@@ -26,12 +26,14 @@ export default function ProjectsDialogs({project, setSelection, selection}: {pro
     const handleMenuDelete = async (selectedProject: typeof project) => {
         setSelection('delete');
         deleteProject(selectedProject.id, pathname).then((response) => {
+            /* eslint-disable  @typescript-eslint/no-unused-expressions */
             response.success && response.data && toast({
                 description: `Your project ${response.data.name} has been successfully deleted`
             });
             !response.success && response.message && toast({
                 description: response.message
             });
+            /* eslint-enable  @typescript-eslint/no-unused-expressions */
         }).catch((error) => {
             console.log(error);
             toast({
@@ -43,12 +45,14 @@ export default function ProjectsDialogs({project, setSelection, selection}: {pro
     const handleEditSubmit = (values: z.infer<typeof projectFormSchema>, pathName: string) => {
         setSelection(undefined);
         editProject(values, pathName).then((response) => {
+            /* eslint-disable @typescript-eslint/no-unused-expressions */
             response.success && response.data && toast({
                 description: 'Successfully changed project attributes'
             });
             !response.success && response.message && toast({
                 description: response.message
             });
+            /* eslint-enable @typescript-eslint/no-unused-expressions */
         }).catch((error) => {
             console.log(error);
             toast({
@@ -90,7 +94,7 @@ export default function ProjectsDialogs({project, setSelection, selection}: {pro
                     <Input  data-cy={`edit-project-name-input-${project.name}`} placeholder={project.name}{...field} />
                 </FormControl>
                 <FormDescription>
-                    This is your project's name
+                    This is your project&apos;s name
                 </FormDescription>
                 <FormMessage />
                 </FormItem>

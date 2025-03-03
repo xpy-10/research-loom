@@ -22,12 +22,14 @@ export default function SelectTaskStatusComponent({task, taskStatusLabels}:{task
             const args = { taskId: task.id, taskLabelId: taskLabel.id};
             const selectedTaskStatus = changeTaskStatus(args)
             selectedTaskStatus.then((response) => {
+                /* eslint-disable  @typescript-eslint/no-unused-expressions */
                 response.success && response.data && toast({
                     description: `task ${response.data.title}'s status changed` 
                 });
                 !response.success && response.message && toast({
                     description: "error updating the task"
                 })
+                /* eslint-enable  @typescript-eslint/no-unused-expressions */
             }).catch((error) => {
                 console.log(error);
                 toast({

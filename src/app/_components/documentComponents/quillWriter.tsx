@@ -69,10 +69,11 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
     const [remoteAwareness, setRemoteAwareness] = useState<userAwarenessType[]>([]);
     const [remoteUpdate, setRemoteUpdate] = useState<Delta|undefined>(undefined);
     const { quill, quillRef, Quill, editor } = useQuill({ theme, modules, formats, placeholder});
-    const { isLoaded, isSignedIn, user} = useUser();
+    const { user } = useUser();
     const [remoteCursorMap, setRemoteCursorMap] = useState(new Map());
     const { toast } = useToast();
     const ws = useWebSocket();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let cursorModule: any
 
     useEffect(() => {
@@ -166,7 +167,7 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
     useEffect(() => {
         if (!currentAwareness.shouldUpdate || !data || !quill) return;
         else if (user && data && ws && quill && currentAwareness.range) {
-            const timeoutId = setTimeout(() => {
+            setTimeout(() => {
                 const awarenessObject: connectionMessageType = {
                     type: 'awareness', 
                     payload: {
@@ -189,7 +190,7 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
                 setCurrentAwareness(newAwareness);
             }, CURSOR_LATENCY + (currentAwareness.debounced?1000:0));
         }
-    }, [currentAwareness, data, ws, quill])
+    }, [user, currentAwareness, data, ws, quill])
 
     useEffect(() => { 
         if (!shouldUpdate || !user || !data) return;
@@ -212,6 +213,7 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
         return () => {
             clearTimeout(patchTimeoutId);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [shouldUpdate, user, data]); 
 
     useEffect(() => {
@@ -222,8 +224,9 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
                 payload: { quill_update: model.toBinary()}, 
                 clientId: user.id, 
                 documentId: data.id 
-            }
+            };
             try {
+                /* eslint-disable  @typescript-eslint/no-unused-expressions */
                 const updatedDoc = await syncDoc(message);
                 updatedDoc.success && updatedDoc.data && toast({
                     description: 'Synced document'
@@ -231,6 +234,7 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
                 !updatedDoc.success && updatedDoc.message && toast({
                     description: updatedDoc.message
                 });
+                /* eslint-enable  @typescript-eslint/no-unused-expressions */
                 setShouldSyncDoc(false);
             }
             catch (error) {
@@ -241,6 +245,7 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
         return () => {
             clearTimeout(docTimeoutId);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [shouldSyncDoc, user, data])
 
     useEffect(() => {
@@ -283,7 +288,7 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
                 quill.updateContents(diff, 'silent')
             }
         }
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [remoteUpdate])
 
     useEffect(() => {
@@ -303,6 +308,7 @@ export default function QuillWriter({data}:{data:Document|undefined}) {
                 setRemoteCursorMap(new Map(remoteCursorMap));
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [remoteAwareness])
 
     return (

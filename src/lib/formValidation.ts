@@ -1,4 +1,3 @@
-import { PriorityTag } from "@prisma/client";
 import {z} from "zod";
 
 export const projectFormSchema = z.object({
@@ -79,7 +78,7 @@ export const documentDeleteForm = z.object({
 export const docSyncValidation = z.object({
     type: z.literal('quill_doc'),
     payload: z.object({
-        quill_update: z.instanceof(Uint8Array<ArrayBufferLike>)
+        quill_update: z.instanceof(Uint8Array)
     }),
     clientId: z.string(),
     documentId: z.number()

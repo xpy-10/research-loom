@@ -9,16 +9,6 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import DocumentDeleteDialog from "./documentDeleteDialog";
 
-type documentOptionsType = {
-    document: documentListItemType,
-    setViewDocDialog: (arg: boolean) => void,
-    viewDocDialog: boolean,
-    setDeleteDocDialog: (arg: boolean) => void,
-    deleteDocDialog: boolean,
-    setDocDialogData: (arg: documentListItemType|undefined) => void,
-    onDocModify?: (arg: boolean) => VideoDecoder
-};
-
 export default function DocumentOptions({document}: {document: documentListItemType}) {
     const [deleteDocDialog, setDeleteDocDialog] = useState(false);
     const [viewDocDialog, setViewDocDialog] = useState(false);
@@ -29,6 +19,7 @@ export default function DocumentOptions({document}: {document: documentListItemT
             router.push(`/document/${document.id}`);
             window.location.reload();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [viewDocDialog]);
 
     return (

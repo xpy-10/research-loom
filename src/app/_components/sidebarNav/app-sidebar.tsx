@@ -1,5 +1,5 @@
 "use client"
-import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
+import { BookOpen, SquareTerminal } from "lucide-react";
 import { NavMain } from "@/app/_components/sidebarNav/nav-main";
 import { NavProjects } from "@/app/_components/sidebarNav/nav-projects";
 import { Sidebar ,SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";

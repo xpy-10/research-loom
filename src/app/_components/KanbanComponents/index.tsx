@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from "react"
 import CreateTaskComponent from "../taskComponents/createTaskComponent";
 import CreateTaskStatusComponent from "../taskStatusComponents/createTaskStatusComponent";
 import { KanbanBoard } from "./kanbanBoard";

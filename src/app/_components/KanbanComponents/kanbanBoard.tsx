@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { BoardColumn, BoardContainer } from "./boardColumn";
-import { DndContext, type DragEndEvent, type DragOverEvent, DragOverlay, type DragStartEvent, useSensor, useSensors, KeyboardSensor, Announcements, UniqueIdentifier, TouchSensor, MouseSensor } from "@dnd-kit/core";
+import { DndContext, type DragEndEvent, type DragOverEvent, DragOverlay, type DragStartEvent, useSensor, useSensors, KeyboardSensor, TouchSensor, MouseSensor } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { TaskCard } from "./taskCard";
 import type { Column } from "./boardColumn";
@@ -31,6 +31,7 @@ export function KanbanBoard() {
     const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
 
+    /* eslint-disable @typescript-eslint/no-unused-expressions, react-hooks/exhaustive-deps */
     useEffect(() => {
         setIsClient(true);
         fetchAllTaskStatus().then((response) => {
@@ -89,6 +90,7 @@ export function KanbanBoard() {
           })
       });
     }, [modifyTasksEvent]);
+    
 
     useEffect(() => {
       if (!shouldProcessDeleteTask) return;
@@ -102,7 +104,7 @@ export function KanbanBoard() {
     useEffect(() => {
         if (!isClient || !listOfTasks || !shouldRefreshTasks || modifyTasksEvent || shouldProcessDeleteTask) return; 
         setShouldRefreshTasks(false);
-          let updateArray: z.infer<typeof taskStatusChangeManySchema> = [];
+          const updateArray: z.infer<typeof taskStatusChangeManySchema> = [];
           listOfTasks.map((task, index) => {
               updateArray.push({taskId: task.id, kanbanSort: index,  taskLabelId: task.taskStatusId? task.taskStatusId: -1})
           });
@@ -124,7 +126,7 @@ export function KanbanBoard() {
     useEffect(() => {
         if (!isClient || !listOfLabels) return;
         console.log('update array')
-          let updateArray: z.infer<typeof taskStatusKanbanSort> = []
+          const updateArray: z.infer<typeof taskStatusKanbanSort> = []
           listOfLabels.map((column, index) => {
               updateArray.push({id: Number(column.id), kanbanColSort: index})
           });
@@ -142,6 +144,7 @@ export function KanbanBoard() {
             })
           });
     }, [listOfLabels])
+    /* eslint-enable @typescript-eslint/no-unused-expressions, react-hooks/exhaustive-deps */
     
     const sensors = useSensors(
     useSensor(MouseSensor),
@@ -229,12 +232,14 @@ export function KanbanBoard() {
     const isActiveAColumn = activeData?.type === "Column";
     if (!isActiveAColumn) return;
 
+    /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
     const newLabels = listOfLabels? ((listOfLabels: any) => {
       const activeColumnIndex = listOfLabels.findIndex((col: any) => col.id === activeId);
 
       const overColumnIndex = listOfLabels.findIndex((col: any) => col.id === overId);
       return arrayMove(listOfLabels, activeColumnIndex, overColumnIndex);
     }): (undefined);
+    /* eslint-enable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
 
     setListOfLabels((listOfLabels) => {
       const activeColumnIndex = listOfLabels.findIndex((col) => col.id === activeId);

@@ -13,6 +13,7 @@ export default function TaskDeleteDialog({deleteTaskDialog, setDeleteTaskDialog,
         setDeleteTaskDialog(false);
         if (!selectedTask) { return };
         deleteTask({id: selectedTask.id}, pathname).then((response) => {
+            /* eslint-disable  @typescript-eslint/no-unused-expressions */
             response.success && response.data && toast({
                 description: 'Successfully deleted task'
             });
@@ -20,6 +21,7 @@ export default function TaskDeleteDialog({deleteTaskDialog, setDeleteTaskDialog,
             !response.success && response.message && toast({
                 description: response.message
             });
+            /* eslint-enable  @typescript-eslint/no-unused-expressions */
         }).catch((error) => {
             console.log(error);
             toast({

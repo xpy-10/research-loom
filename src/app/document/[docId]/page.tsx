@@ -4,8 +4,13 @@ import SocketConnector from "@/app/_components/documentComponents/socketConnecto
 import { fetchDocument } from "@/lib/actions";
 import { Document } from "@prisma/client";
 
-export default async function ViewDoc({params}: {params:{docId:string}}) {
+type Params = Promise<{
+    docId: string
+}>
+
+export default async function ViewDoc( { params }: {params: Params} ) {
     const { docId } = await params;
+    console.log(Number(docId))
     const document = await fetchDocument(Number(docId));
     const data: Document|undefined = document.success && document.data? document.data : undefined
     return (

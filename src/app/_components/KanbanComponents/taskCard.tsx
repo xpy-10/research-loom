@@ -36,6 +36,7 @@ export function TaskCard({ task, isOverlay, onTaskModify, onTaskDelete }: TaskCa
   });
 
   const [viewTaskDialog, setViewTaskDialog] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [taskDialogData, setTaskDialogData] = useState<Task|undefined>(undefined);
   const [deleteTaskDialog, setDeleteTaskDialog] = useState(false);
   const taskOptionProps = {

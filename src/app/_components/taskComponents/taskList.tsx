@@ -53,6 +53,7 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
         },
         {
             accessorKey: 'status',
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             header: ({ column })=> {
                 return (
                     <>Task Status</>
@@ -81,6 +82,7 @@ export default function TaskList({data, taskStatus}: {data: Task[], taskStatus: 
                 const task = row.original;
                 return <TaskPriorityChange task={task}/>
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             sortingFn: (rowA: any, rowB: any, columnId: any): number => {
                 const tag1 = rowA.getValue(columnId);
                 const tag2 = rowB.getValue(columnId);

@@ -68,7 +68,7 @@ export async function createDocument(values: z.infer<typeof documentCreationForm
     };
 };
 
-export async function fetchDocuments(limit?: number) {
+export async function fetchDocuments() {
     const { userId, orgId } = await auth();
     if (!userId) {
         return { success: false, message: 'Database error, invalid user' }
@@ -177,7 +177,7 @@ export async function deleteDocument(values: z.infer<typeof documentDeleteForm>,
                     projectId: project.id
                 }
             });
-            revalidatePath(pathName);
+            revalidatePath(parsedPathName);
             return { success: true, data: deletedDocument };
         };
         return { success: false, message: 'Error in database deleting document'};
@@ -359,7 +359,7 @@ export async function editProject(values: z.infer<typeof projectFormSchema>, pat
     }
 }
 
-export async function useProject(projectId: number) {
+export async function selectProject(projectId: number) {
     const { userId, orgId } = await auth();
     if (!userId) {
         return { success:false, message: `Database error, invalid user` };
@@ -766,7 +766,7 @@ export async function changeTaskAttributesKanban(values: z.infer<typeof taskStat
             return { success: false, message: 'no valid organization used'};
         };
         const changedTasks = await prisma.$transaction( async (transaction) => {
-            let results: Task[] = [];
+            const results: Task[] = [];
             for (const data of parsedData) {
                 if (data.taskLabelId && data.taskLabelId >= 0) {
                     const changedTask = await transaction.task.update({
@@ -835,7 +835,7 @@ export async function changeTaskStatusKanbanSort(values: z.infer<typeof taskStat
             return { success: false, message: 'no valid organization used'};
         };
         const changedTasks = await prisma.$transaction( async (transaction) => {
-            let results: TaskStatus[] = [];
+            const results: TaskStatus[] = [];
             for (const data of parsedData) {
                 if (data.id == -1) continue;
             
@@ -898,7 +898,7 @@ export async function syncDoc(values: z.infer<typeof docSyncValidation>) {
                 });
                 if (dbDoc) {
                     const model = ModelWithExt.load(dbDoc.contents, undefined, schema);
-                    const remoteModel = ModelWithExt.load(parsedData.payload.quill_update, undefined, schema);
+                    const remoteModel = ModelWithExt.load(parsedData.payload.quill_update as Uint8Array, undefined, schema);
                     const remotePatch = remoteModel.api.flush();
                     model.applyPatch(remotePatch);
                     const updatedDoc = await transaction.document.update({

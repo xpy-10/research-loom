@@ -24,6 +24,7 @@ export default function CreateDocumentComponent() {
     })
     const handleSubmit = (values: z.infer<typeof documentCreationForm>, pathName: string) => {
         createDocument(values, pathName).then((response) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             response.success && response.data && toast({
                 description: 'Successfully created document'
             })

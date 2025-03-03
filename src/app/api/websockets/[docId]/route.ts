@@ -1,6 +1,4 @@
-import { syncDoc } from '@/lib/actions';
 import { connectionMessageType } from '@/lib/types';
-import { useAuth } from '@clerk/nextjs';
 import 'server-only';
 import { z } from "zod";
 
@@ -33,6 +31,7 @@ export async function SOCKET(
 ) {
     const pathname = request.url!
     const matches = pathname.match(/\/api\/([^\/]+)\/([^\/]+)/)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [fullURL, _, docId] = matches || []
 
     clientDocRooms.set(client, {docId});
@@ -66,6 +65,7 @@ async function createHelpers( client: import('ws').WebSocket, server: import('ws
                 const jsonMessage: connectionMessageType = JSON.parse(payload.toString('utf-8'));
                 if (jsonMessage.type == 'quill_update') {
                     const clientArray = getClientKeysFromDocId(clientDocRooms, docId);
+                    // eslint-disable-next-line prefer-const
                     for (let c of clientArray) if (c !== client) c.send(payload);
                 }
                 if (jsonMessage.type == 'awareness' && jsonMessage.payload) {
@@ -75,6 +75,7 @@ async function createHelpers( client: import('ws').WebSocket, server: import('ws
                     const jsonMap = JSON.stringify(allAwareness);
                     const buffer = Buffer.from(jsonMap);
                     const clientArray = getClientKeysFromDocId(clientDocRooms, docId);
+                     // eslint-disable-next-line prefer-const
                     for (let c of clientArray) if (c !== client) c.send(buffer);
                     client.send(buffer);
                 }
@@ -91,7 +92,7 @@ async function createHelpers( client: import('ws').WebSocket, server: import('ws
     }
     return { handleMessage };
 }
-
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 const createUserMap = (userAwareness: {}, docId: string) => {
     let awarenessMap = AwarenessDocRooms.get(docId);
     if (!awarenessMap) {

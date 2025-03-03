@@ -24,6 +24,7 @@ export default function CreateTaskStatusComponent({onSuccess}:{onSuccess?: (arg:
     })
     const handleCreateSubmit = (values: z.infer<typeof taskStatusFormSchema>, pathName: string) => {
         createTaskStatus(values, pathName).then((response) => {
+            /* eslint-disable @typescript-eslint/no-unused-expressions */
             response.success && response.data && toast({
                 description: 'New task label successfully created'
             });
@@ -31,6 +32,7 @@ export default function CreateTaskStatusComponent({onSuccess}:{onSuccess?: (arg:
             !response.success && response.message && toast({
                 description: response.message
             });
+            /* eslint-enable @typescript-eslint/no-unused-expressions */
         }).catch((error) => {
             console.log(error);
             toast({

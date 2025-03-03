@@ -34,6 +34,7 @@ export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolea
     const handleCreateTask = (values: z.infer<typeof taskFormSchema>, pathName: string) => {
         setDialogOpen(false);
         createTask(values, pathName).then((response) => {
+            /* eslint-disable  @typescript-eslint/no-unused-expressions */
             response.success && response.data && toast({
                 description: `Successfully created new task with title ${response.data.title}`
             });
@@ -41,6 +42,7 @@ export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolea
             !response.success && response.message && toast({
                 description: response.message
             });
+            /* eslint-enable  @typescript-eslint/no-unused-expressions */
         })
     }
 
@@ -66,7 +68,7 @@ export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolea
                             <Input data-cy={'add-task-form-title'} placeholder='...task title'{...field} />
                         </FormControl>
                         <FormDescription>
-                            This is your task's Title
+                            This is your task&apos;s Title
                         </FormDescription>
                         <FormMessage />
                     </FormItem>
@@ -82,7 +84,7 @@ export default function CreateTaskComponent({onSuccess}:{onSuccess?: (arg:boolea
                             <Textarea data-cy={'add-task-form-details'} placeholder='...task details'{...field} />
                         </FormControl>
                         <FormDescription>
-                            This is your task's details
+                            This is your task&apos;s details
                         </FormDescription>
                         <FormMessage />
                     </FormItem>

@@ -4,7 +4,6 @@ import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, Sideba
 import { Project } from "@prisma/client";
 import ProjectsDropDownSidebar from "@/app/_components/projectComponents/projectsDropDownSidebar";
 import { useOrganization } from "@clerk/nextjs";
-import { useEffect } from "react";
 
 export function NavProjects({
   projects,
