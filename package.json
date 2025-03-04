@@ -10,10 +10,10 @@
     "prod": "cross-env CONNECT_TO_PROD_DB=true next dev",
     "save_schema": "xata schema dump -f schema.json",
     "replicate_db": "xata init --schema schema.json",
-    "xata_pull": "xata codegen",
-    "prepare": "next-ws patch"
+    "xata_pull": "xata codegen"
   },
   "dependencies": {
+    "1.1.1": "^1.0.0",
     "@clerk/nextjs": "^6.5.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",

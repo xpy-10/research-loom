@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      1.1.1:
+        specifier: ^1.0.0
+        version: 1.0.0
       '@clerk/nextjs':
         specifier: ^6.5.0
         version: 6.5.0(next@15.0.3(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106))(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
@@ -203,6 +206,9 @@ importers:
         version: 5.6.3
 
 packages:
+
+  1.1.1@1.0.0:
+    resolution: {integrity: sha512-ilnt7l8f6QjcGOA8x4YZPqww9k6xzSIeSvnsm+hPi7pDsfMQUOlg/UbXKftDpYMFhH+5xlvL/1q4O9/hE7gHvQ==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -2576,6 +2582,9 @@ packages:
     resolution: {integrity: sha512-wcjaerHw0ydZwfhiKbXJWLDY8A7yV7KhjQOpb83hGgGfId/aQa4TOvwyzn2PuswW2gPCYEL/nEAiSVpdOj1lXw==}
     engines: {node: '>= 0.4'}
 
+  is-array@1.0.1:
+    resolution: {integrity: sha512-gxiZ+y/u67AzpeFmAmo4CbtME/bs7J2C++su5zQzvQyaxUqVzkh69DI+jN+KZuSO6JaH6TIIU6M6LhqxMjxEpw==}
+
   is-arrayish@0.3.2:
     resolution: {integrity: sha512-eVRqCvVlZbuw3GrM63ovNSNAeA1K16kaR/LRY/92w0zxQ5/1YzwblUX652i4Xs9RwAGjW9d9y6X88t8OaAJfWQ==}
 
@@ -3846,6 +3855,10 @@ packages:
     resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
 
 snapshots:
+
+  1.1.1@1.0.0:
+    dependencies:
+      is-array: 1.0.1
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -6303,6 +6316,8 @@ snapshots:
     dependencies:
       call-bind: 1.0.7
       get-intrinsic: 1.2.4
+
+  is-array@1.0.1: {}
 
   is-arrayish@0.3.2:
     optional: true

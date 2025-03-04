@@ -5,6 +5,7 @@ FROM base AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable pnpm && pnpm install --frozen-lockfile
+RUN y | npx next-ws-cli@latest patch
 
 # Stage 2: Build the application
 FROM base AS builder
