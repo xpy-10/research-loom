@@ -12,7 +12,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN corepack enable pnpm && npx prisma generate && pnpm run build
+RUN corepack enable pnpm && npx prisma generate && pnpm run build && echo echo "Next.js build completed"
 
 # Stage 3: Production server
 FROM base AS runner
