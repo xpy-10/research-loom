@@ -24,7 +24,7 @@ export function GET() {
     return new Response('Upgrade Required', { status: 426, headers });
   }
 
-export async function SOCKET(
+export function SOCKET(
     client: import('ws').WebSocket,
     request: import('node:http').IncomingMessage,
     server: import('ws').WebSocketServer,
@@ -36,7 +36,7 @@ export async function SOCKET(
 
     clientDocRooms.set(client, {docId});
 
-    const { handleMessage } = await createHelpers(client, server, docId);
+    const { handleMessage } = createHelpers(client, server, docId);
 
     client.on('open', () => console.log('websocket server started'));
 
@@ -47,7 +47,7 @@ export async function SOCKET(
     });
 }
 
-async function createHelpers( client: import('ws').WebSocket, server: import('ws').WebSocketServer, docId: string) {
+function createHelpers( client: import('ws').WebSocket, server: import('ws').WebSocketServer, docId: string) {
 
     function getClientKeysFromDocId(map: Map<(typeof client), {docId: string}>, targetValue: string): (typeof client)[] {
         const keys: (typeof client)[]= [];
