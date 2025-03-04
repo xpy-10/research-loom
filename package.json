@@ -10,7 +10,8 @@
     "prod": "cross-env CONNECT_TO_PROD_DB=true next dev",
     "save_schema": "xata schema dump -f schema.json",
     "replicate_db": "xata init --schema schema.json",
-    "xata_pull": "xata codegen"
+    "xata_pull": "xata codegen",
+    "prepare": "next-ws patch"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.5.0",
