@@ -9,7 +9,7 @@ export default function DocContainer({docId, data }: {docId: string, data: Docum
     const [url , setUrl] = useState<string|null>(null);
 
     useEffect(() => {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        const protocol = window.location.protocol === 'https:' ? 'ws:' : 'ws:' // unfortunately not implemented in corresponding route.ts so not wss
         const wsUrl = `${protocol}//${window.location.host}/api/websockets/${docId}`
         setUrl(wsUrl)
     }, [])
