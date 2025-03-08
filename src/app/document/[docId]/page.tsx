@@ -10,12 +10,13 @@ type Params = Promise<{
 
 export default async function ViewDoc( { params }: {params: Params} ) {
     const { docId } = await params;
-    console.log(Number(docId))
     const document = await fetchDocument(Number(docId));
     const data: Document|undefined = document.success && document.data? document.data : undefined
+    const socketUrl = process.env.NODE_ENV === 'production' ? `wss://xpy.10.com/api/websockets/${docId}` : 
+    `ws://localhost:3000/api/websockets/${docId}`
     return (
         <>
-        <SocketConnector url={`ws://localhost:3000/api/websockets/${docId}`}>
+        <SocketConnector url={socketUrl}>
             {data && <QuillWriter data={data} />}
             {!data && <div>No valid document retrieved</div>}
         </SocketConnector>

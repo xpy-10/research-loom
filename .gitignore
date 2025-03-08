@@ -48,3 +48,5 @@ next-env.d.ts
 /cypress/e2e/2-advanced-examples
 /cypress/support
 /cypress/fixtures/example.json
+
+deploy.sh
