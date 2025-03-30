@@ -21,6 +21,5 @@ describe('creates a project', () => {
         cy.get(`[data-cy="add-task-form-details"]`).should('exist').type(`${TEST_TASK_DETAILS}`)
         cy.get(`[data-cy="add-task-form-submit"]`).should('exist').click()
         cy.wait(5000)
-
     })
 })

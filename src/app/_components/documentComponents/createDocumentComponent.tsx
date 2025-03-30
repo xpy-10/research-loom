@@ -28,6 +28,16 @@ export default function CreateDocumentComponent() {
             response.success && response.data && toast({
                 description: 'Successfully created document'
             })
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            !response.success && response.message && toast({
+                description: response.message
+            })
+        })
+        .catch((error) => {
+            console.log(error);
+            toast({
+                description: 'Client error: unable to create document'
+            })
         })
     }
 

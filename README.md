@@ -52,4 +52,54 @@ Run to update prisma after schema changes, where CUSTOM_NAME is a name for the m
 npx prisma migrate dev --name CUSTOM_NAME
 ```
 
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+Dockerfile contains a build of the application though there are discrepancies when testing functionality of some backend functions due to differences in the build environment vs the development environment.
+
+To build when in the application directory:
+
+```bash
+docker build -f Dockerfile.prod -t finalproject/research-loom:prod .
+```
+
+Then make sure environment variables are available in `.env` inside the root of the application directory, then:
+
+```bash
+docker run -p 3000:3000 --env-file .env finalproject/research-loom:prod
+```
+
+The application should be available in `localhost:3000`.
+
+To run as a local dev (non-minified version):
+```bash
+pnpm install
+pnpm npx next-ws-cli@latest patch
+npx prisma generate
+pnpm run dev
+```
+The `.env` file consists of the following variables:
+
+```bash
+XATA_API_KEY
+XATA_BRANCH
+DATABASE_URL
+SHADOW_DATABASE_URL
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+CLERK_SECRET_KEY
+```
+These depend on existing projects initiated from [Xata with a Postgres connection](https://xata.io/docs/postgres), and [Clerk](clerk.com) for Auth services.
+
+## Testing
+
+This project uses [Cypress](https://docs.cypress.io/app/end-to-end-testing/writing-your-first-end-to-end-test) for end to end testing. To start make sure the application is running on localhost:3000:
+
+```bash
+docker build -f Dockerfile.prod -t finalproject/research-loom:test .
+docker run -p 3000:3000 --env-file .env finalproject/research-loom:test
+npx cypress open
+```
+
+The tests run better after having 'warmed up' the nextJS project as it seems the first time pages are requested the server does not respond as it should. See `./cypress/README.md` for more details.
+
 
