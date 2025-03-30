@@ -87,6 +87,8 @@ DATABASE_URL
 SHADOW_DATABASE_URL
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 CLERK_SECRET_KEY
+NEXT_PUBLIC_CLERK_SIGN_IN_URL
+NEXT_PUBLIC_CLERK_SIGN_UP_URL
 ```
 These depend on existing projects initiated from [Xata with a Postgres connection](https://xata.io/docs/postgres), and [Clerk](clerk.com) for Auth services.
 
